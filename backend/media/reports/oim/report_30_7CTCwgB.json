@@ -1,0 +1,1352 @@
+{
+ "documentInfo": {
+  "documentType": "https://xbrl.org/2021/xbrl-json",
+  "features": {
+   "xbrl:canonicalValues": true
+  },
+  "namespaces": {
+   "country": "https://xbrl.org/2024/iso3166",
+   "iso4217": "http://www.xbrl.org/2003/iso4217",
+   "scheme": "http://standards.iso.org/iso/17442",
+   "utr": "http://www.xbrl.org/2009/utr",
+   "vsme": "https://xbrl.efrag.org/taxonomy/vsme/2024-12-17/vsme",
+   "waste": "https://xbrl.efrag.org/taxonomy/waste/2023-12-06/waste",
+   "xbrl": "https://xbrl.org/2021",
+   "xbrli": "http://www.xbrl.org/2003/instance"
+  },
+  "taxonomy": [
+   "https://xbrl.efrag.org/taxonomy/vsme/2024-12-17/vsme-all.xsd"
+  ]
+ },
+ "facts": {
+  "f1": {
+   "value": "vsme:BasicModuleAndComprehensiveModuleMember",
+   "dimensions": {
+    "concept": "vsme:BasisForPreparation",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f2": {
+   "value": "vsme:ConsolidatedMember",
+   "dimensions": {
+    "concept": "vsme:BasisForReporting",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f4": {
+   "value": "vsme:B2-PracticesPoliciesAndFutureInitiativesForTransitioningTowardsAMoreSustainableEconomyMember vsme:B3-EnergyAndGreenhouseGasEmissionsMember",
+   "dimensions": {
+    "concept": "vsme:ListOfDisclosuresForWhichNoChangesAreReportedComparedToThePreviousPeriodReporting",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f6": {
+   "value": "",
+   "dimensions": {
+    "concept": "vsme:ListOfOmittedDisclosuresDeemedToBeClassifiedOrSensitiveInformation",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f7": {
+   "value": "vsme:PrivateLimitedLiabilityUndertakingMember",
+   "dimensions": {
+    "concept": "vsme:UndertakingsLegalForm",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f8": {
+   "value": "_:NACE_G4721 _:NACE_G4722",
+   "dimensions": {
+    "concept": "vsme:NaceSectorClassificationCodes",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f12": {
+   "value": "vsme:AverageDuringTheReportingPeriodMember",
+   "dimensions": {
+    "concept": "vsme:EmployeeCountingMethodology",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f13": {
+   "value": "vsme:Full-TimeEquivalentFTEMember",
+   "dimensions": {
+    "concept": "vsme:TypeOfNumberOfEmployees",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f14": {
+   "value": "country:IT",
+   "dimensions": {
+    "concept": "vsme:CountryOfPrimaryOperationsAndLocationOfSignificantAssets",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f21": {
+   "value": "country:IT",
+   "dimensions": {
+    "concept": "vsme:CountryOfSite",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00",
+    "vsme:IdentifierOfSiteTypedAxis": "1"
+   }
+  },
+  "f23": {
+   "value": "vsme:CircularEconomyMember vsme:ClimateChangeMember vsme:ConsumersAndEndusersMember vsme:WaterAndMarineResourcesMember vsme:WorkersInTheValueChainMember",
+   "dimensions": {
+    "concept": "vsme:SustainabilityIssueAddressedByPracticePolicyAndOrFutureInitiative",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f134": {
+   "value": "vsme:AccidentPreventionMember vsme:ChildLabourMember vsme:DiscriminationMember vsme:ForcedLabourMember vsme:HumanTraffickingMember",
+   "dimensions": {
+    "concept": "vsme:TypeOfContentCoveredByTheCodeOfConductOrHumanRightsPolicyForItsOwnWorkforce",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f3": {
+   "value": "true",
+   "dimensions": {
+    "concept": "vsme:ReportContainsDisclosuresFromThePreviousReportingPeriodThatRemainUnchanged",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f5": {
+   "value": "www.TestReport.com",
+   "dimensions": {
+    "concept": "vsme:LinkToPreviousReportContainingDisclosuresThatRemainUnchanged",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f9": {
+   "value": "600000.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:Assets",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "iso4217:EUR"
+   }
+  },
+  "f10": {
+   "value": "235000.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:Turnover",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "iso4217:EUR"
+   }
+  },
+  "f11": {
+   "value": "151.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:NumberOfEmployees",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f15": {
+   "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+   "dimensions": {
+    "concept": "vsme:DescriptionOfSustainabilityRelatedCertificationsOrLabels",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f16": {
+   "value": "Company XYZ Subsidiary 1",
+   "dimensions": {
+    "concept": "vsme:NameOfTheSubsidiary",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00",
+    "vsme:IdentifierOfSubsidiaryTypedAxis": "1"
+   }
+  },
+  "f17": {
+   "value": "Street XYZ, City, Country",
+   "dimensions": {
+    "concept": "vsme:RegisteredAddressOfTheSubsidiary",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00",
+    "vsme:IdentifierOfSubsidiaryTypedAxis": "1"
+   }
+  },
+  "f18": {
+   "value": "Duomo Square",
+   "dimensions": {
+    "concept": "vsme:AddressOfSite",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00",
+    "vsme:IdentifierOfSiteTypedAxis": "1"
+   }
+  },
+  "f19": {
+   "value": "20122",
+   "dimensions": {
+    "concept": "vsme:PostalCodeOfSite",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00",
+    "vsme:IdentifierOfSiteTypedAxis": "1"
+   }
+  },
+  "f20": {
+   "value": "Milan",
+   "dimensions": {
+    "concept": "vsme:CityOfSite",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00",
+    "vsme:IdentifierOfSiteTypedAxis": "1"
+   }
+  },
+  "f22": {
+   "value": "45.4639102,9.1906426",
+   "dimensions": {
+    "concept": "vsme:GPSLocationOfSite",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00",
+    "vsme:IdentifierOfSiteTypedAxis": "1"
+   }
+  },
+  "f24": {
+   "value": "true",
+   "dimensions": {
+    "concept": "vsme:PracticePolicyAndOrFutureInitiativeIsPubliclyAvailable",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f25": {
+   "value": "250.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalEnergyConsumption",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:MWh"
+   }
+  },
+  "f26": {
+   "value": "110.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:EnergyConsumptionFromElectricity",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:MWh"
+   }
+  },
+  "f27": {
+   "value": "10.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:EnergyConsumptionFromElectricity",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:BreakdownOfEnergyConsumptionAxis": "vsme:RenewableEnergyMember",
+    "unit": "utr:MWh"
+   }
+  },
+  "f28": {
+   "value": "100.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:EnergyConsumptionFromElectricity",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:BreakdownOfEnergyConsumptionAxis": "vsme:NonRenewableEnergyMember",
+    "unit": "utr:MWh"
+   }
+  },
+  "f29": {
+   "value": "43.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:EnergyConsumptionFromSelfGeneratedElectricity",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:MWh"
+   }
+  },
+  "f30": {
+   "value": "23.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:EnergyConsumptionFromSelfGeneratedElectricity",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:BreakdownOfEnergyConsumptionAxis": "vsme:RenewableEnergyMember",
+    "unit": "utr:MWh"
+   }
+  },
+  "f31": {
+   "value": "20.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:EnergyConsumptionFromSelfGeneratedElectricity",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:BreakdownOfEnergyConsumptionAxis": "vsme:NonRenewableEnergyMember",
+    "unit": "utr:MWh"
+   }
+  },
+  "f32": {
+   "value": "76.5",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:EnergyConsumptionFromFuels",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:MWh"
+   }
+  },
+  "f33": {
+   "value": "76.5",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:EnergyConsumptionFromFuels",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:BreakdownOfEnergyConsumptionAxis": "vsme:RenewableEnergyMember",
+    "unit": "utr:MWh"
+   }
+  },
+  "f34": {
+   "value": "0.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:EnergyConsumptionFromFuels",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:BreakdownOfEnergyConsumptionAxis": "vsme:NonRenewableEnergyMember",
+    "unit": "utr:MWh"
+   }
+  },
+  "f35": {
+   "value": "100.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:GrossScope1GreenhouseGasEmissions",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:tCO2e"
+   }
+  },
+  "f36": {
+   "value": "50.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:GrossLocationBasedScope2GreenhouseGasEmissions",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:tCO2e"
+   }
+  },
+  "f37": {
+   "value": "150.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalGrossLocationBasedScope1AndScope2GHGEmissions",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:tCO2e"
+   }
+  },
+  "f38": {
+   "value": "700.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:GrossScope3GreenhouseGasEmissions",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:tCO2e"
+   }
+  },
+  "f39": {
+   "value": "850.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalGrossLocationBasedGHGEmissions",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:tCO2e"
+   }
+  },
+  "f40": {
+   "value": "0.003617",
+   "decimals": 7,
+   "dimensions": {
+    "concept": "vsme:TotalLocationBasedGreenhouseGasEmissionsIntensityValue",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:tCO2e/iso4217:EUR"
+   }
+  },
+  "f41": {
+   "value": "567.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:AmountOfEmissionToAir",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfPollutantAxis": "vsme:AlachlorMember",
+    "unit": "utr:t"
+   }
+  },
+  "f42": {
+   "value": "67.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:AmountOfEmissionToSoil",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfPollutantAxis": "vsme:AnthraceneMember",
+    "unit": "utr:t"
+   }
+  },
+  "f43": {
+   "value": "567.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:AmountOfEmissionToWater",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfPollutantAxis": "vsme:CarbonDioxideCO2Member",
+    "unit": "utr:t"
+   }
+  },
+  "f44": {
+   "value": "1200.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:AreaOfSiteInBiodiversitySensitiveArea",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:IdentifierOfSiteTypedAxis": "1",
+    "unit": "utr:sqm"
+   }
+  },
+  "f45": {
+   "value": "true",
+   "dimensions": {
+    "concept": "vsme:SiteLocatedInABiodiversitySensitiveArea",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:IdentifierOfSiteTypedAxis": "1"
+   }
+  },
+  "f46": {
+   "value": "742.5",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalAmountOfWaterWithdrawnFromAllSites",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:m3"
+   }
+  },
+  "f47": {
+   "value": "150.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:AmountOfWaterWithdrawnAtSitesLocatedInAreasOfHighWaterStress",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00",
+    "unit": "utr:m3"
+   }
+  },
+  "f48": {
+   "value": "100.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:WaterDischargeFromUndertakingProductionProcesses",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:m3"
+   }
+  },
+  "f49": {
+   "value": "642.5",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalWaterConsumption",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:m3"
+   }
+  },
+  "f50": {
+   "value": "false",
+   "dimensions": {
+    "concept": "vsme:UndertakingAppliesCircularEconomyPrinciples",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f51": {
+   "value": "100.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:WasteDivertedToRecycleOrReuseMass",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-040201Non-HazardousWaste-WasteFromUnprocessedTextileFibresAndOtherNaturalFibrousSubstancesMainlyOfVegetableOriginMember",
+    "unit": "utr:t"
+   }
+  },
+  "f52": {
+   "value": "150.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:WasteDirectedToDisposalMass",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-040201Non-HazardousWaste-WasteFromUnprocessedTextileFibresAndOtherNaturalFibrousSubstancesMainlyOfVegetableOriginMember",
+    "unit": "utr:t"
+   }
+  },
+  "f53": {
+   "value": "250.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalWasteRecycledReusedAndDirectedToDisposalMass",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-040201Non-HazardousWaste-WasteFromUnprocessedTextileFibresAndOtherNaturalFibrousSubstancesMainlyOfVegetableOriginMember",
+    "unit": "utr:t"
+   }
+  },
+  "f54": {
+   "value": "4000.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:WasteDivertedToRecycleOrReuseVolume",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-040210Non-HazardousWaste-OrganicMatterFromNaturalProductsE.G.GreaseWaxMember",
+    "unit": "utr:m3"
+   }
+  },
+  "f55": {
+   "value": "1000.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:WasteDirectedToDisposalVolume",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-040210Non-HazardousWaste-OrganicMatterFromNaturalProductsE.G.GreaseWaxMember",
+    "unit": "utr:m3"
+   }
+  },
+  "f56": {
+   "value": "5000.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalWasteRecycledReusedAndDirectedToDisposalVolume",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-040210Non-HazardousWaste-OrganicMatterFromNaturalProductsE.G.GreaseWaxMember",
+    "unit": "utr:m3"
+   }
+  },
+  "f57": {
+   "value": "500.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:WasteDivertedToRecycleOrReuseMass",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-101102Non-HazardousWaste-WasteGlassMember",
+    "unit": "utr:t"
+   }
+  },
+  "f58": {
+   "value": "200.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:WasteDirectedToDisposalMass",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-101102Non-HazardousWaste-WasteGlassMember",
+    "unit": "utr:t"
+   }
+  },
+  "f59": {
+   "value": "700.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalWasteRecycledReusedAndDirectedToDisposalMass",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-101102Non-HazardousWaste-WasteGlassMember",
+    "unit": "utr:t"
+   }
+  },
+  "f60": {
+   "value": "30.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:WasteDivertedToRecycleOrReuseVolume",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-130101HazardousWaste-HydraulicOilsContainingPcbsOrPctsMember",
+    "unit": "utr:m3"
+   }
+  },
+  "f61": {
+   "value": "70.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:WasteDirectedToDisposalVolume",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-130101HazardousWaste-HydraulicOilsContainingPcbsOrPctsMember",
+    "unit": "utr:m3"
+   }
+  },
+  "f62": {
+   "value": "100.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalWasteRecycledReusedAndDirectedToDisposalVolume",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-130101HazardousWaste-HydraulicOilsContainingPcbsOrPctsMember",
+    "unit": "utr:m3"
+   }
+  },
+  "f63": {
+   "value": "300.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:WasteDivertedToRecycleOrReuseMass",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-150104Non-HazardousWaste-MetallicPackagingMember",
+    "unit": "utr:t"
+   }
+  },
+  "f64": {
+   "value": "100.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:WasteDirectedToDisposalMass",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-150104Non-HazardousWaste-MetallicPackagingMember",
+    "unit": "utr:t"
+   }
+  },
+  "f65": {
+   "value": "400.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalWasteRecycledReusedAndDirectedToDisposalMass",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-150104Non-HazardousWaste-MetallicPackagingMember",
+    "unit": "utr:t"
+   }
+  },
+  "f66": {
+   "value": "800.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:WasteDivertedToRecycleOrReuseMass",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-160806HazardousWaste-SpentLiquidsUsedAsCatalystsMember",
+    "unit": "utr:kg"
+   }
+  },
+  "f67": {
+   "value": "400.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:WasteDirectedToDisposalMass",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-160806HazardousWaste-SpentLiquidsUsedAsCatalystsMember",
+    "unit": "utr:kg"
+   }
+  },
+  "f68": {
+   "value": "1200.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalWasteRecycledReusedAndDirectedToDisposalMass",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-160806HazardousWaste-SpentLiquidsUsedAsCatalystsMember",
+    "unit": "utr:kg"
+   }
+  },
+  "f69": {
+   "value": "1200.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:WasteDivertedToRecycleOrReuseMass",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-200101Non-HazardousWaste-PaperAndCardboardMember",
+    "unit": "utr:t"
+   }
+  },
+  "f70": {
+   "value": "300.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:WasteDirectedToDisposalMass",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-200101Non-HazardousWaste-PaperAndCardboardMember",
+    "unit": "utr:t"
+   }
+  },
+  "f71": {
+   "value": "1500.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalWasteRecycledReusedAndDirectedToDisposalMass",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:TypeOfWasteAxis": "waste:W-200101Non-HazardousWaste-PaperAndCardboardMember",
+    "unit": "utr:t"
+   }
+  },
+  "f72": {
+   "value": "1200.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalHazardousWasteGeneratedMass",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:kg"
+   }
+  },
+  "f73": {
+   "value": "2850000.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalNonHazardousWasteGeneratedMass",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:kg"
+   }
+  },
+  "f74": {
+   "value": "2851200.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalWasteGeneratedMass",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:kg"
+   }
+  },
+  "f75": {
+   "value": "100.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalHazardousWasteGeneratedVolume",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:m3"
+   }
+  },
+  "f76": {
+   "value": "5000.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalNonHazardousWasteGeneratedVolume",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:m3"
+   }
+  },
+  "f77": {
+   "value": "5100.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalWasteGeneratedVolume",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:m3"
+   }
+  },
+  "f78": {
+   "value": "Packaging, boxes for produce/meat",
+   "dimensions": {
+    "concept": "vsme:NameOfMaterialUsed",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:IdentifierOfMaterialTypedAxis": "1"
+   }
+  },
+  "f79": {
+   "value": "1500.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:WeightOfMaterialUsed",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:IdentifierOfMaterialTypedAxis": "1",
+    "unit": "utr:kg"
+   }
+  },
+  "f80": {
+   "value": "Wrapping, trays, containers",
+   "dimensions": {
+    "concept": "vsme:NameOfMaterialUsed",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:IdentifierOfMaterialTypedAxis": "2"
+   }
+  },
+  "f81": {
+   "value": "800.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:VolumeOfMaterialUsed",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "vsme:IdentifierOfMaterialTypedAxis": "2",
+    "unit": "utr:m3"
+   }
+  },
+  "f82": {
+   "value": "1500.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalMassOfMaterialUsed",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:kg"
+   }
+  },
+  "f83": {
+   "value": "800.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalVolumeOfMaterialUsed",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "utr:m3"
+   }
+  },
+  "f84": {
+   "value": "110.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:NumberOfPermanentContactEmployees",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f85": {
+   "value": "41.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:NumberOfTemporaryContractEmployees",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f86": {
+   "value": "55.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:NumberOfMaleEmployees",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f87": {
+   "value": "40.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:NumberOfFemaleEmployees",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f88": {
+   "value": "5.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:NumberOfOtherGenderEmployees",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f89": {
+   "value": "51.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:NumberOfNonReportedGenderEmployees",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f90": {
+   "value": "10.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:NumberOfEmployeesForCountryOfEmploymentContract",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00",
+    "vsme:CountryOfEmploymentContractAxis": "country:AL"
+   }
+  },
+  "f91": {
+   "value": "1.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:NumberOfEmployeesForCountryOfEmploymentContract",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00",
+    "vsme:CountryOfEmploymentContractAxis": "country:BE"
+   }
+  },
+  "f92": {
+   "value": "140.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:NumberOfEmployeesForCountryOfEmploymentContract",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00",
+    "vsme:CountryOfEmploymentContractAxis": "country:IT"
+   }
+  },
+  "f93": {
+   "value": "0.2841",
+   "decimals": 4,
+   "dimensions": {
+    "concept": "vsme:EmployeeTurnoverRate",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f94": {
+   "value": "2.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:NumberOfRecordableWorkRelatedAccidentsInTheReportingPeriod",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f95": {
+   "value": "1.32",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:RateOfRecordableWorkRelatedAccidentsInTheReportingPeriod",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f96": {
+   "value": "0.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:NumberOfFatalitiesAsAResultOfWorkRelatedInjuriesAndWorkRelatedIllHealth",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f97": {
+   "value": "true",
+   "dimensions": {
+    "concept": "vsme:EmployeesReceivePayEqualOrAboveMinimumWageDeterminedByNationalLawOrCollectiveAgreement",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f98": {
+   "value": "0.1",
+   "decimals": 4,
+   "dimensions": {
+    "concept": "vsme:PercentageGapInPayBetweenFemaleAndMaleEmployees",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f99": {
+   "value": "0.9272",
+   "decimals": 4,
+   "dimensions": {
+    "concept": "vsme:PercentageOfEmployeesCoveredByCollectiveBargainingAgreements",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f100": {
+   "value": "100.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:AverageNumberOfAnnualTrainingHoursPerMaleEmployee",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f101": {
+   "value": "150.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:AverageNumberOfAnnualTrainingHoursPerFemaleEmployee",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f102": {
+   "value": "140.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:AverageNumberOfAnnualTrainingHoursPerOtherGenderEmployee",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f103": {
+   "value": "120.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:AverageNumberOfAnnualTrainingHoursPerNonReportedGenderEmployee",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f104": {
+   "value": "1.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalNumberOfConvictionsForTheViolationOfAntiCorruptionAndAntiBriberyLaws",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f105": {
+   "value": "5000.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalAmountOfFinesForTheViolationOfAnticorruptionAndAntibriberyLaws",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00",
+    "unit": "iso4217:EUR"
+   }
+  },
+  "f106": {
+   "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ",
+   "dimensions": {
+    "concept": "vsme:DescriptionOfSignificantGroupsOfProductsAndOrServicesOffered",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f107": {
+   "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ",
+   "dimensions": {
+    "concept": "vsme:DescriptionOfSignificantMarketsTheUndertakingOperatesIn",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f108": {
+   "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ",
+   "dimensions": {
+    "concept": "vsme:DescriptionOfMainBusinessRelationships",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f109": {
+   "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ",
+   "dimensions": {
+    "concept": "vsme:DescriptionOfKeyElementsOfStrategyThatRelatesToOrAffectsSustainabilityIssues",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f110": {
+   "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ",
+   "dimensions": {
+    "concept": "vsme:DescriptionOfPracticesPoliciesAndOrFutureInitiatives",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f111": {
+   "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ",
+   "dimensions": {
+    "concept": "vsme:MostSeniorLevelAccountableForImplementationOfPracticesPoliciesAndOrFutureInitiatives",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f112": {
+   "value": "2020",
+   "dimensions": {
+    "concept": "vsme:GreenhouseGasEmissionReductionTargetBaseYear",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f113": {
+   "value": "2030",
+   "dimensions": {
+    "concept": "vsme:GreenhouseGasEmissionReductionTargetYear",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f114": {
+   "value": "150.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:GrossScope1GreenhouseGasEmissions",
+    "entity": "scheme:TestCode1234",
+    "period": "2020-01-01T00:00:00/2021-01-01T00:00:00",
+    "vsme:ReportingScopesAxis": "vsme:BaselineYearMember",
+    "unit": "utr:tCO2e"
+   }
+  },
+  "f115": {
+   "value": "75.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:GrossScope1GreenhouseGasEmissions",
+    "entity": "scheme:TestCode1234",
+    "period": "2030-01-01T00:00:00/2031-01-01T00:00:00",
+    "vsme:ReportingScopesAxis": "vsme:TargetYearMember",
+    "unit": "utr:tCO2e"
+   }
+  },
+  "f116": {
+   "value": "75.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:GrossLocationBasedScope2GreenhouseGasEmissions",
+    "entity": "scheme:TestCode1234",
+    "period": "2020-01-01T00:00:00/2021-01-01T00:00:00",
+    "vsme:ReportingScopesAxis": "vsme:BaselineYearMember",
+    "unit": "utr:tCO2e"
+   }
+  },
+  "f117": {
+   "value": "15.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:GrossLocationBasedScope2GreenhouseGasEmissions",
+    "entity": "scheme:TestCode1234",
+    "period": "2030-01-01T00:00:00/2031-01-01T00:00:00",
+    "vsme:ReportingScopesAxis": "vsme:TargetYearMember",
+    "unit": "utr:tCO2e"
+   }
+  },
+  "f118": {
+   "value": "225.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalGrossLocationBasedScope1AndScope2GHGEmissions",
+    "entity": "scheme:TestCode1234",
+    "period": "2020-01-01T00:00:00/2021-01-01T00:00:00",
+    "vsme:ReportingScopesAxis": "vsme:BaselineYearMember",
+    "unit": "utr:tCO2e"
+   }
+  },
+  "f119": {
+   "value": "90.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalGrossLocationBasedScope1AndScope2GHGEmissions",
+    "entity": "scheme:TestCode1234",
+    "period": "2030-01-01T00:00:00/2031-01-01T00:00:00",
+    "vsme:ReportingScopesAxis": "vsme:TargetYearMember",
+    "unit": "utr:tCO2e"
+   }
+  },
+  "f120": {
+   "value": "700.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:GrossScope3GreenhouseGasEmissions",
+    "entity": "scheme:TestCode1234",
+    "period": "2020-01-01T00:00:00/2021-01-01T00:00:00",
+    "vsme:ReportingScopesAxis": "vsme:BaselineYearMember",
+    "unit": "utr:tCO2e"
+   }
+  },
+  "f121": {
+   "value": "300.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:GrossScope3GreenhouseGasEmissions",
+    "entity": "scheme:TestCode1234",
+    "period": "2030-01-01T00:00:00/2031-01-01T00:00:00",
+    "vsme:ReportingScopesAxis": "vsme:TargetYearMember",
+    "unit": "utr:tCO2e"
+   }
+  },
+  "f122": {
+   "value": "925.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalGrossLocationBasedGHGEmissions",
+    "entity": "scheme:TestCode1234",
+    "period": "2020-01-01T00:00:00/2021-01-01T00:00:00",
+    "vsme:ReportingScopesAxis": "vsme:BaselineYearMember",
+    "unit": "utr:tCO2e"
+   }
+  },
+  "f123": {
+   "value": "390.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalGrossLocationBasedGHGEmissions",
+    "entity": "scheme:TestCode1234",
+    "period": "2030-01-01T00:00:00/2031-01-01T00:00:00",
+    "vsme:ReportingScopesAxis": "vsme:TargetYearMember",
+    "unit": "utr:tCO2e"
+   }
+  },
+  "f124": {
+   "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ",
+   "dimensions": {
+    "concept": "vsme:DisclosureOfListOfMainActionsTheEntitySeeksInOrderToAchieveItsTargets",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f125": {
+   "value": "2028-01-01",
+   "dimensions": {
+    "concept": "vsme:DateOfAdoptionOfTransitionPlanForUndertakingNotHavingAdoptedTransitionPlanYet",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f126": {
+   "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+   "dimensions": {
+    "concept": "vsme:DescriptionOfClimateRelatedHazardsAndClimateRelatedTransitionEvents",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f127": {
+   "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+   "dimensions": {
+    "concept": "vsme:DisclosureOfHowItHasAssessedTheExposureAndSensitivityOfItsAssetsActivitiesAndValueChainToTheseHazardsAndTransitionEvents",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f128": {
+   "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+   "dimensions": {
+    "concept": "vsme:TimeHorizonsOfAnyClimateRelatedHazardsAndTransitionEventsIdentified",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f129": {
+   "value": "false",
+   "dimensions": {
+    "concept": "vsme:DisclosureOfWhetherItHasUndertakenClimateChangeAdaptationActionsForAnyClimateRelatedHazardsAndTransitionEvents",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f130": {
+   "value": "0.8",
+   "decimals": 4,
+   "dimensions": {
+    "concept": "vsme:FemaleToMaleRatioAtManagementLevelForTheReportingPeriod",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f131": {
+   "value": "4.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalNumberOfSelfEmployedWorkersWithoutPersonnelThatAreWorkingExclusivelyForTheUndertaking",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f132": {
+   "value": "50.0",
+   "decimals": 2,
+   "dimensions": {
+    "concept": "vsme:TotalNumberOfTemporaryWorkersProvidedByUndertakingsPrimarilyEngagedInEmploymentActivities",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  },
+  "f133": {
+   "value": "true",
+   "dimensions": {
+    "concept": "vsme:UndertakingHasACodeOfConductOrHumanRightsPolicyForItsOwnWorkforce",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f135": {
+   "value": "true",
+   "dimensions": {
+    "concept": "vsme:UndertakingHasAComplaintHandlingMechanismForItsOwnWorkforce",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f136": {
+   "value": "false",
+   "dimensions": {
+    "concept": "vsme:UndertakingHasConfirmedHumanRightsIncidentsInItsOwnWorkforce",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f137": {
+   "value": "false",
+   "dimensions": {
+    "concept": "vsme:UndertakingIsAwareOfAnyConfirmedIncidentsInvolvingWorkersInTheValueChainAffectedCommunitiesConsumersAndEndUsers",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f138": {
+   "value": "false",
+   "dimensions": {
+    "concept": "vsme:UndertakingsAreExcludedFromAnyEuReferenceBenchmarksThatAreAlignedWithTheParisAgreement",
+    "entity": "scheme:TestCode1234",
+    "period": "2024-01-01T00:00:00/2025-01-01T00:00:00"
+   }
+  },
+  "f139": {
+   "value": "2.0",
+   "decimals": 0,
+   "dimensions": {
+    "concept": "vsme:GenderDiversityRatioInGovernanceBody",
+    "entity": "scheme:TestCode1234",
+    "period": "2025-01-01T00:00:00"
+   }
+  }
+ }
+}
