@@ -7,7 +7,8 @@ from django.conf import settings
 from django.core.files import File
 from django.db import transaction
 from .models import Report
-from .oim import extract_metadata
+from .oim import extract_metadata, extract_facts
+from .models import Report, Fact
 import zipfile
 import tempfile
 import shutil
@@ -254,7 +255,7 @@ def _process_report_sync(report_id: int) -> None:
                 report.oim_json_file.save(filename, django_file, save=False)
                 report.failure_reason = ""
                 report.save()
-        # Populate metadata best-effort
+        # Populate metadata best-effort and persist facts
         try:
             import json as _json
             with open(generated_path, "r", encoding="utf-8") as jf:
@@ -267,6 +268,23 @@ def _process_report_sync(report_id: int) -> None:
                     if period:
                         report.reporting_period = period
                     report.save(update_fields=["entity", "reporting_period", "updated_at"])
+            # Save facts
+            fact_rows = list(extract_facts(oim_json))
+            to_create: list[Fact] = []
+            for r in fact_rows:
+                to_create.append(
+                    Fact(
+                        report=report,
+                        concept=r.get("concept", ""),
+                        value=r.get("value", ""),
+                        datatype=r.get("datatype", ""),
+                        unit=r.get("unit", ""),
+                        context=r.get("context", ""),
+                    )
+                )
+            if to_create:
+                Fact.objects.bulk_create(to_create, batch_size=1000)
+                logger.info("Saved %d facts for report id=%s", len(to_create), report_id)
         except Exception:
             logger.warning("Metadata extraction failed for report id=%s", report_id)
         logger.info("Report validated successfully id=%s", report_id)

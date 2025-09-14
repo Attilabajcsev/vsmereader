@@ -21,6 +21,8 @@ urlpatterns = [
     path("reports/upload", views.report_upload),  # allow missing trailing slash for POST
     path("reports/<int:report_id>/", views.report_detail, name="report_detail"),
     path("reports/<int:report_id>/facts/", views.report_facts, name="report_facts"),
+    path("reports/<int:report_id>/delete/", views.report_delete, name="report_delete"),
+    path("reports/<int:report_id>/delete", views.report_delete),
     path("reports/<int:report_id>/download/original/", views.download_original, name="download_original"),
     path("reports/<int:report_id>/download/oim-json/", views.download_oim_json, name="download_oim_json"),
 ]

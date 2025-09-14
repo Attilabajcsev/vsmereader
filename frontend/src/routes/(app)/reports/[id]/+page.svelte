@@ -8,6 +8,7 @@
   let q: string = $state('');
   let pageNum: number = $state(1);
   let pageSize: number = $state(50);
+  let deleteBusy: boolean = $state(false);
 
   function getId(): string {
     const m = globalThis.location?.pathname.match(/\/reports\/(\d+)/);
@@ -22,6 +23,21 @@
       report = await res.json();
     } else {
       report = null;
+    }
+  }
+
+  async function onDelete() {
+    const id = getId();
+    if (!id) return;
+    if (!confirm('Delete this report?')) return;
+    deleteBusy = true;
+    try {
+      const res = await fetch(`../../api/reports/${id}/delete/`, { method: 'DELETE', credentials: 'include' });
+      if (res.ok) {
+        goto('/reports');
+      }
+    } finally {
+      deleteBusy = false;
     }
   }
 
@@ -74,6 +90,7 @@
   {:else}
     <div class="space-y-2">
       <h1 class="text-2xl font-semibold">Report #{report.id}</h1>
+      <button class="btn btn-error btn-sm" disabled={deleteBusy} on:click={onDelete}>Delete</button>
       <div class="text-sm opacity-80">
         <div>Entity: {report.entity || '—'}</div>
         <div>Reporting Period: {report.reporting_period || '—'}</div>

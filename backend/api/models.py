@@ -32,3 +32,17 @@ class Report(models.Model):
         return f"Report #{self.id} — {entity} ({period})"
 
 
+class Fact(models.Model):
+    report = models.ForeignKey(Report, on_delete=models.CASCADE, related_name="facts")
+    concept = models.CharField(max_length=512)
+    value = models.TextField(blank=True)
+    datatype = models.CharField(max_length=256, blank=True)
+    unit = models.CharField(max_length=128, blank=True)
+    context = models.CharField(max_length=256, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["report", "concept"]),
+        ]
+

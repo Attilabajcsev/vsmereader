@@ -12,7 +12,7 @@ from .serializers import (
     ReportListSerializer,
     ReportDetailSerializer,
 )
-from .models import Report
+from .models import Report, Fact
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.response import Response
@@ -183,43 +183,38 @@ def report_facts(request: Request, report_id: int) -> Response:
     if not report.oim_json_file:
         return Response({"results": [], "count": 0}, status=200)
 
-    try:
-        with report.oim_json_file.open("rb") as f:
-            oim_json = jsonlib.load(f)
-    except Exception as e:
-        logger.exception("Failed to load OIM JSON for report id=%s", report_id)
-        return Response({"error": "Could not read extracted JSON"}, status=500)
-
-    # Update metadata best-effort if empty
-    if not report.entity or not report.reporting_period:
-        try:
-            entity, period = extract_metadata(oim_json)
-            if entity or period:
-                report.entity = report.entity or entity
-                report.reporting_period = report.reporting_period or period
-                report.save(update_fields=["entity", "reporting_period", "updated_at"])
-        except Exception:
-            logger.warning("Metadata extraction failed for report id=%s", report_id)
-
     q = (request.query_params.get("q") or "").lower().strip()
     page = max(int(request.query_params.get("page", 1)), 1)
     page_size = max(min(int(request.query_params.get("page_size", 50)), 200), 1)
 
-    try:
-        rows = list(extract_facts(oim_json))
-    except Exception:
-        logger.exception("Fact extraction failed for report id=%s", report_id)
-        return Response({"error": "Could not extract facts"}, status=500)
-
+    facts_qs = Fact.objects.filter(report=report)
     if q:
-        rows = [r for r in rows if q in (r["concept"] or "").lower() or q in (r["value"] or "").lower()]
+        facts_qs = facts_qs.filter(
+            Q(concept__icontains=q) | Q(value__icontains=q)
+        )
 
-    total = len(rows)
-    start = (page - 1) * page_size
-    end = start + page_size
-    page_rows = rows[start:end]
+    total = facts_qs.count()
+    page_rows = facts_qs.order_by('id')[(page - 1) * page_size: (page - 1) * page_size + page_size]
+    results = [
+        {
+            "concept": f.concept,
+            "value": f.value,
+            "datatype": f.datatype,
+            "unit": f.unit,
+            "context": f.context,
+        }
+        for f in page_rows
+    ]
 
-    return Response({"results": page_rows, "count": total, "page": page, "page_size": page_size})
+    return Response({"results": results, "count": total, "page": page, "page_size": page_size})
+
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def report_delete(request: Request, report_id: int) -> Response:
+    report = get_object_or_404(Report, id=report_id, owner=request.user)
+    report.delete()
+    return Response({"deleted": True})
 
 
 @api_view(["GET"])

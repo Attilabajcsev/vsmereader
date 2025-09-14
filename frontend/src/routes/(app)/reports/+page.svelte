@@ -4,6 +4,7 @@
   let reports: any[] = $state([]);
   let uploading: boolean = $state(false);
   let uploadError: string | null = $state(null);
+  let deleting: Record<number, boolean> = $state({});
 
   async function loadReports() {
     const url = q ? `api/reports/?q=${encodeURIComponent(q)}` : 'api/reports/';
@@ -39,6 +40,19 @@
     } finally {
       uploading = false;
       (form.reset && form.reset());
+    }
+  }
+
+  async function onDelete(id: number) {
+    if (!confirm('Delete this report?')) return;
+    deleting[id] = true;
+    try {
+      const res = await fetch(`/api/reports/${id}/delete/`, { method: 'DELETE', credentials: 'include' });
+      if (res.ok) {
+        await loadReports();
+      }
+    } finally {
+      deleting[id] = false;
     }
   }
 
@@ -80,15 +94,20 @@
             <th>Reporting Period</th>
             <th>Status</th>
             <th>Created</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           {#each reports as r}
-            <tr class="cursor-pointer hover" onclick={() => goto(`/reports/${r.id}`)}>
+            <tr class="hover">
               <td>{r.entity || '—'}</td>
               <td>{r.reporting_period || '—'}</td>
               <td>{r.status}</td>
               <td>{new Date(r.created_at).toLocaleString()}</td>
+              <td class="flex gap-2">
+                <button class="btn btn-ghost btn-sm" onclick={() => goto(`/reports/${r.id}`)}>Open</button>
+                <button class="btn btn-error btn-sm" disabled={!!deleting[r.id]} onclick={() => onDelete(r.id)}>Delete</button>
+              </td>
             </tr>
           {/each}
         </tbody>

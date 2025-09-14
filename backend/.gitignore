@@ -1,3 +1,7 @@
+media/
+arelle_cache/
+**/__pycache__/
+*.pyc
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
