@@ -68,6 +68,7 @@
 	<div class="flex flex-col items-center justify-center gap-4">
 		{#if username}
 			<button class="btn btn-neutral min-w-40" onclick={() => (username = '')}>Remove name</button>
+			<a class="btn btn-primary min-w-40" href="/reports">Go to Reports</a>
 		{:else if loading}
 			<button class="btn btn-neutral min-w-40" onclick={getdata}>
 				<span class="loading loading-spinner loading-sm"></span>
@@ -75,6 +76,7 @@
 			>
 		{:else}
 			<button class="btn btn-neutral min-w-40" onclick={getdata}>Get name</button>
+			<a class="btn btn-primary min-w-40" href="/reports">Go to Reports</a>
 		{/if}
 	</div>
 </div>

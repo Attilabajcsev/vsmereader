@@ -1,32 +1,75 @@
-# svelte-django-template
-Template to build applications with SvelteKit frontend with Django backend
+# VSME iXBRL Uploader — MVP
 
-## Project Structure:
-The project is running on separate frontend and backend modules. 
-Frontend: SvelteKit application with a BFF (backend for frontend) with TailwindCSS and DaisyUI
-Backend: Django Rest Framework server providing API endpoints
-Database: SQLite (for now)
+Minimal web app to upload an EFRAG VSME Inline XBRL report, track validation, view basic metadata and extracted datapoints, and download both the original file and the extracted JSON.
 
-## Infrastucture
-The template uses Docker for development to create images and containers, which can be deployed to production.
-Dockerfiles are defined in the app root folders separately for frontend and backend.
+## What you can do
+- Upload a report: single `.xhtml` VSME iXBRL file or a `.zip` IXDS.
+- See status: Processing → Validated / Failed with a clear reason.
+- Browse your uploads: per-user list with Entity, Reporting Period, Status, and Created Date.
+- Open a report: view metadata, validation summary, and a table of extracted facts.
+- Filter facts by keyword and paginate results.
+- Download the original iXBRL and the extracted JSON.
 
-### Development
+## Users & access
+- Per-user workspace: you only see your own uploads and data.
+- Authentication is already implemented and remains unchanged (JWT in HttpOnly cookies, refresh/verify, and optional Google OAuth). We are building on top of the existing login and session handling.
 
-Use docker-compose to orchastrate the build and run of both images and containers in parallel.
-Run `docker-compose up` in the root project folder to create the containers.
+## Accepted files
+- One file per upload.
+- Types: `.xhtml` VSME iXBRL or `.zip` containing an Inline XBRL Document Set (IXDS).
+- Basic size/type checks; one report per upload.
 
-### Production
-Production build to be described here..
+## Screens
+### 1) Upload
+- File picker with brief guidance (accepted types, size limit) and an Upload button.
+- After submit: inline progress “Processing…”, then “Validated” or “Failed”.
+- On success: link/button to “View report”.
+- On failure: short human-readable reason and a “Try again” action.
 
-## Authentication
-The project comes with prebuilt JWT token authentication using django-restframework-simplejwt. 
-The django backend can create, verify and refresh tokens for users. The tokens are sent to SvelteKit's Nodejs server, saved in HttpOnly cookies.
-A proxy API endpoint makes sure to include these cookies when sending request from the frontend application to the backend.
-A SvelteKit server hook runs server side before every page load function to check for cookies.
+### 2) Reports List
+- Table of your uploads with: Entity, Reporting Period, Status (Processing / Validated / Failed), Created Date.
+- Keyword filter (matches Entity or Period).
+- Row click opens Report Detail.
 
-Users can also login through OAuth2 providers like Google. This will initiate a flow that redirects to the provider. On successfull authentication SvelteKit exchanges tokens with the Django backend, then sets HttpOnly cookies in the client.
+### 3) Report Detail
+- Header shows: Entity, Reporting Period, Taxonomy Version (text), Created Date, Status.
+- Validation summary box: “Validated” or “Failed” with brief key messages.
+- Facts table (50 rows/page):
+  - Columns: Concept (QName or label), Value (truncated if long), Datatype, Unit (if any), Context (period/instant).
+  - Keyword filter (matches Concept or Value text).
+  - Pagination (e.g., 50 rows/page).
+- Download buttons:
+  - “Download original iXBRL”
+  - “Download extracted JSON”
 
-## REST API
-The frontend application can send requests to the Django backend if needed. The request is sent through a proxy, which attaches the cookie headers to the request. A
-BACKEND_URL env variable must be set, which must be the root url of the django backend app. From the client you can call the `api/{path}` endpoint which will send a request to the django backend through the proxy. Currently possible requests: GET, POST 
+## States & messages
+- Processing → Validated / Failed.
+- Common failures: invalid file type/structure, file too large, not a VSME iXBRL/IXDS.
+- Clear, short error messages only (no stack traces).
+
+## Empty states
+- No uploads yet: “You haven’t uploaded any reports.” with “Upload your first report” CTA.
+- No facts match filter: “No datapoints match your search.”
+
+## Non-goals (MVP)
+- No editing of facts or metadata.
+- No analytics, charts, or cross-report comparisons.
+- No bulk upload.
+- No team/org sharing or roles beyond basic per-user isolation.
+
+## Success criteria
+- A valid upload appears in the list with correct Entity/Period and “Validated” status.
+- Report Detail shows a readable validation summary and a populated facts table.
+- Users can download both the original iXBRL and the extracted JSON.
+- Failed uploads show a clear reason and do not appear as validated.
+
+## Run locally (development)
+This project uses Docker for local development with separate frontend and backend services.
+
+1. From the repository root, start the stack:
+   - `docker-compose up`
+2. Sign in using the existing login flow (JWT cookies / optional Google OAuth).
+3. Upload a VSME iXBRL report and follow the status through to validation.
+
+Notes:
+- We build on the existing authentication, login, and JWT cookie handling already present in the codebase. No changes required to use the MVP features.
