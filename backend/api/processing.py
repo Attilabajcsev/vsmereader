@@ -9,6 +9,7 @@ from django.db import transaction
 from .models import Report
 from .oim import extract_metadata, extract_facts
 from .models import Report, Fact
+from .register import upsert_vsme_register
 import zipfile
 import tempfile
 import shutil
@@ -285,6 +286,13 @@ def _process_report_sync(report_id: int) -> None:
             if to_create:
                 Fact.objects.bulk_create(to_create, batch_size=1000)
                 logger.info("Saved %d facts for report id=%s", len(to_create), report_id)
+            # Upsert vSME register row based on facts
+            try:
+                row = upsert_vsme_register(report)
+                if row:
+                    logger.info("Upserted vSME register row for company=%s year=%s", report.company_id, report.reporting_year)
+            except Exception:
+                logger.exception("Failed to upsert vSME register for report id=%s", report_id)
         except Exception:
             logger.warning("Metadata extraction failed for report id=%s", report_id)
         logger.info("Report validated successfully id=%s", report_id)

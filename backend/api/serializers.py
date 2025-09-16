@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Report
+from .models import Report, Company, VsmeRegister
 from django.conf import settings
 
 
@@ -32,25 +32,37 @@ class OAuthUserRegistrationSerializer(serializers.ModelSerializer):
 
 
 class ReportListSerializer(serializers.ModelSerializer):
+    company = serializers.SerializerMethodField()
+
     class Meta:
         model = Report
         fields = [
             "id",
+            "company",
+            "reporting_year",
             "entity",
             "reporting_period",
             "status",
             "created_at",
         ]
 
+    def get_company(self, obj: Report) -> dict | None:
+        if not obj.company_id:
+            return None
+        return {"id": obj.company_id, "name": obj.company.name}
+
 
 class ReportDetailSerializer(serializers.ModelSerializer):
     original_file_url = serializers.SerializerMethodField()
     oim_json_file_url = serializers.SerializerMethodField()
+    company = serializers.SerializerMethodField()
 
     class Meta:
         model = Report
         fields = [
             "id",
+            "company",
+            "reporting_year",
             "entity",
             "reporting_period",
             "taxonomy_version",
@@ -69,11 +81,16 @@ class ReportDetailSerializer(serializers.ModelSerializer):
     def get_oim_json_file_url(self, obj: Report) -> str | None:
         return obj.oim_json_file.url if obj.oim_json_file else None
 
+    def get_company(self, obj: Report) -> dict | None:
+        if not obj.company_id:
+            return None
+        return {"id": obj.company_id, "name": obj.company.name}
+
 
 class ReportUploadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
-        fields = ["id", "original_file"]
+        fields = ["id", "original_file", "company", "reporting_year"]
         read_only_fields = ["id"]
 
     def create(self, validated_data):
@@ -91,3 +108,70 @@ class ReportUploadSerializer(serializers.ModelSerializer):
                 f"File too large. Max size is {settings.MAX_UPLOAD_SIZE_MB} MB"
             )
         return file
+
+    def validate_reporting_year(self, year: int) -> int:
+        try:
+            y = int(year)
+        except Exception:
+            raise serializers.ValidationError("Invalid year")
+        if y < 1900 or y > 2100:
+            raise serializers.ValidationError("Year must be between 1900 and 2100")
+        return y
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        company = attrs.get("company")
+        year = attrs.get("reporting_year")
+        if not company:
+            raise serializers.ValidationError({"company": "Company is required"})
+        if not year:
+            raise serializers.ValidationError({"reporting_year": "Reporting year is required"})
+        # Enforce uniqueness per company-year
+        exists = Report.objects.filter(company=company, reporting_year=year).exists()
+        if exists:
+            raise serializers.ValidationError({
+                "non_field_errors": ["A report for this company and year already exists."],
+                "company": ["Duplicate for selected year"],
+                "reporting_year": ["Duplicate for selected company"],
+            })
+        return attrs
+
+
+class CompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = ["id", "name"]
+
+
+class VsmeRegisterListSerializer(serializers.ModelSerializer):
+    company = serializers.SerializerMethodField()
+
+    class Meta:
+        model = VsmeRegister
+        fields = [
+            "id",
+            "company",
+            "year",
+            "entity_identifier",
+            "employees_value",
+            "ghg_total_value",
+            "energy_consumption_value",
+            "water_withdrawal_value",
+            "waste_generated_value",
+            "completeness_score",
+            "updated_at",
+        ]
+
+    def get_company(self, obj: VsmeRegister) -> dict:
+        return {"id": obj.company_id, "name": obj.company.name}
+
+
+class VsmeRegisterDetailSerializer(serializers.ModelSerializer):
+    company = serializers.SerializerMethodField()
+
+    class Meta:
+        model = VsmeRegister
+        fields = "__all__"
+
+    def get_company(self, obj: VsmeRegister) -> dict:
+        return {"id": obj.company_id, "name": obj.company.name}

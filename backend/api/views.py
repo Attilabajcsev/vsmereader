@@ -11,8 +11,11 @@ from .serializers import (
     ReportUploadSerializer,
     ReportListSerializer,
     ReportDetailSerializer,
+    CompanySerializer,
+    VsmeRegisterListSerializer,
+    VsmeRegisterDetailSerializer,
 )
-from .models import Report, Fact
+from .models import Report, Fact, Company, VsmeRegister
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.response import Response
@@ -160,10 +163,19 @@ def report_upload(request: Request) -> Response:
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def report_list(request: Request) -> Response:
-    q = request.query_params.get("q", "").strip().lower()
-    reports = Report.objects.filter(owner=request.user)
+    q = request.query_params.get("q", "").strip()
+    reports = Report.objects.select_related("company").filter(owner=request.user)
     if q:
-        reports = reports.filter(Q(entity__icontains=q) | Q(reporting_period__icontains=q))
+        # If q looks like a 4-digit year, filter exact by reporting_year
+        if q.isdigit() and len(q) == 4:
+            reports = reports.filter(reporting_year=int(q))
+        else:
+            ql = q.lower()
+            reports = reports.filter(
+                Q(entity__icontains=ql)
+                | Q(reporting_period__icontains=ql)
+                | Q(company__name__icontains=ql)
+            )
     data = ReportListSerializer(reports, many=True).data
     return Response(data)
 
@@ -209,6 +221,89 @@ def report_facts(request: Request, report_id: int) -> Response:
     return Response({"results": results, "count": total, "page": page, "page_size": page_size})
 
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def report_summary(request: Request, report_id: int) -> Response:
+    """Return a small vSME ESG summary for the report.
+
+    Structure:
+    {
+      entity: str,
+      reporting_period: str,
+      fact_count: int,
+      required_count: 5,
+      present_count: int,
+      items: [
+        { label: str, code: str, present: bool, value: str | null }
+      ]
+    }
+    """
+    report = get_object_or_404(Report, id=report_id, owner=request.user)
+
+    facts_qs = Fact.objects.filter(report=report)
+    total_count = facts_qs.count()
+
+    # Hardcoded concept matching rules (simple contains checks)
+    checks = [
+        {
+            "label": "Total GHG emissions",
+            "code": "ghg_total",
+            # Try likely vSME concept fragments
+            "concept_contains": ["TotalGHG", "GHGEmissions", "GreenhouseGasEmissions"],
+        },
+        {
+            "label": "Energy consumption",
+            "code": "energy_consumption",
+            "concept_contains": ["TotalEnergyConsumption", "EnergyConsumption"],
+        },
+        {
+            "label": "Water withdrawal",
+            "code": "water_withdrawal",
+            "concept_contains": ["WaterWithdrawal"],
+        },
+        {
+            "label": "Waste generated",
+            "code": "waste_generated",
+            "concept_contains": ["WasteGenerated", "TotalWasteGenerated"],
+        },
+        {
+            "label": "Employees",
+            "code": "employees",
+            "concept_contains": ["NumberOfEmployees", "Employees"],
+        },
+    ]
+
+    items: list[dict] = []
+    present_count = 0
+
+    for chk in checks:
+        matched_fact = None
+        for frag in chk["concept_contains"]:
+            f = facts_qs.filter(concept__icontains=frag).order_by("id").first()
+            if f:
+                matched_fact = f
+                break
+        item = {
+            "label": chk["label"],
+            "code": chk["code"],
+            "present": bool(matched_fact),
+            "value": matched_fact.value if matched_fact else None,
+        }
+        if item["present"]:
+            present_count += 1
+        items.append(item)
+
+    data = {
+        "entity": report.entity,
+        "reporting_period": report.reporting_period,
+        "fact_count": total_count,
+        "required_count": len(checks),
+        "present_count": present_count,
+        "items": items,
+    }
+    return Response(data)
+
+
 @api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
 def report_delete(request: Request, report_id: int) -> Response:
@@ -234,4 +329,129 @@ def download_oim_json(request: Request, report_id: int):
     if not report.oim_json_file:
         raise Http404
     response = FileResponse(report.oim_json_file.open("rb"), as_attachment=True, filename=report.oim_json_file.name.split("/")[-1])
+    return response
+
+
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
+def companies_list(request: Request) -> Response:
+    if request.method == "GET":
+        companies = Company.objects.all().order_by("name")
+        return Response(CompanySerializer(companies, many=True).data)
+    # POST: create or return existing (case-insensitive)
+    name = (request.data.get("name") or "").strip()
+    if not name:
+        return Response({"name": ["Name is required."]}, status=400)
+    if len(name) < 2:
+        return Response({"name": ["Name must be at least 2 characters."]}, status=400)
+    existing = Company.objects.filter(name__iexact=name).first()
+    if existing:
+        return Response(CompanySerializer(existing).data, status=200)
+    company = Company.objects.create(name=name)
+    return Response(CompanySerializer(company).data, status=201)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def register_list(request: Request) -> Response:
+    """List/filter VsmeRegister rows by company name, year range, and min completeness."""
+    qs = VsmeRegister.objects.select_related("company").all()
+    company = request.query_params.get("company", "").strip()
+    year = request.query_params.get("year", "").strip()
+    year_from = request.query_params.get("year_from", "").strip()
+    year_to = request.query_params.get("year_to", "").strip()
+    min_comp = request.query_params.get("min_completeness", "").strip()
+
+    if company:
+        qs = qs.filter(company__name__icontains=company)
+    if year.isdigit():
+        qs = qs.filter(year=int(year))
+    else:
+        if year_from.isdigit():
+            qs = qs.filter(year__gte=int(year_from))
+        if year_to.isdigit():
+            qs = qs.filter(year__lte=int(year_to))
+    if min_comp.isdigit():
+        qs = qs.filter(completeness_score__gte=int(min_comp))
+
+    data = VsmeRegisterListSerializer(qs.order_by("company__name", "year"), many=True).data
+    return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def register_detail(request: Request, company_id: int, year: int) -> Response:
+    row = get_object_or_404(VsmeRegister.objects.select_related("company"), company_id=company_id, year=year)
+    return Response(VsmeRegisterDetailSerializer(row).data)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def register_export_csv(request: Request) -> Response:
+    import csv
+    from io import StringIO
+
+    qs = VsmeRegister.objects.select_related("company").all()
+    company = request.query_params.get("company", "").strip()
+    year = request.query_params.get("year", "").strip()
+    year_from = request.query_params.get("year_from", "").strip()
+    year_to = request.query_params.get("year_to", "").strip()
+    min_comp = request.query_params.get("min_completeness", "").strip()
+
+    if company:
+        qs = qs.filter(company__name__icontains=company)
+    if year.isdigit():
+        qs = qs.filter(year=int(year))
+    else:
+        if year_from.isdigit():
+            qs = qs.filter(year__gte=int(year_from))
+        if year_to.isdigit():
+            qs = qs.filter(year__lte=int(year_to))
+    if min_comp.isdigit():
+        qs = qs.filter(completeness_score__gte=int(min_comp))
+
+    headers = [
+        "company_id","company_name","year","entity_identifier",
+        "employees_value","employees_unit",
+        "ghg_total_value","ghg_total_unit",
+        "ghg_scope1_value","ghg_scope1_unit",
+        "ghg_scope2_value","ghg_scope2_unit",
+        "energy_consumption_value","energy_consumption_unit",
+        "renewable_energy_share_value","renewable_energy_share_unit",
+        "water_withdrawal_value","water_withdrawal_unit",
+        "water_discharge_value","water_discharge_unit",
+        "waste_generated_value","waste_generated_unit",
+        "hazardous_waste_value","hazardous_waste_unit",
+        "non_hazardous_waste_value","non_hazardous_waste_unit",
+        "completeness_score","updated_at",
+    ]
+
+    out = StringIO()
+    writer = csv.writer(out)
+    writer.writerow(headers)
+    for r in qs.iterator():
+        row = [
+            r.company_id,
+            r.company.name,
+            r.year,
+            r.entity_identifier,
+            r.employees_value, r.employees_unit,
+            r.ghg_total_value, r.ghg_total_unit,
+            r.ghg_scope1_value, r.ghg_scope1_unit,
+            r.ghg_scope2_value, r.ghg_scope2_unit,
+            r.energy_consumption_value, r.energy_consumption_unit,
+            r.renewable_energy_share_value, r.renewable_energy_share_unit,
+            r.water_withdrawal_value, r.water_withdrawal_unit,
+            r.water_discharge_value, r.water_discharge_unit,
+            r.waste_generated_value, r.waste_generated_unit,
+            r.hazardous_waste_value, r.hazardous_waste_unit,
+            r.non_hazardous_waste_value, r.non_hazardous_waste_unit,
+            r.completeness_score, r.updated_at.isoformat(),
+        ]
+        writer.writerow(row)
+
+    content = out.getvalue().encode("utf-8")
+    from django.http import HttpResponse
+    response = HttpResponse(content, content_type="text/csv; charset=utf-8")
+    response["Content-Disposition"] = "attachment; filename=vsme_register.csv"
     return response

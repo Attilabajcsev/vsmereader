@@ -4,6 +4,11 @@
   let reports: any[] = $state([]);
   let uploading: boolean = $state(false);
   let uploadError: string | null = $state(null);
+  let companies: any[] = $state([]);
+  let selectedCompanyId: string = $state('');
+  let selectedYear: string = $state('');
+  let newCompanyName: string = $state('');
+  let creatingCompany: boolean = $state(false);
   let deleting: Record<number, boolean> = $state({});
 
   async function loadReports() {
@@ -14,13 +19,46 @@
     }
   }
 
+  async function loadCompanies() {
+    const res = await fetch('/api/companies/', { credentials: 'include' });
+    if (res.ok) {
+      companies = await res.json();
+    }
+  }
+
+  async function createCompany() {
+    const name = (newCompanyName || '').trim();
+    if (!name) return;
+    creatingCompany = true;
+    try {
+      const res = await fetch('/api/companies/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ name })
+      });
+      if (res.ok || res.status === 201) {
+        const c = await res.json();
+        await loadCompanies();
+        selectedCompanyId = String(c.id);
+        newCompanyName = '';
+      }
+    } finally {
+      creatingCompany = false;
+    }
+  }
+
   async function onUpload(ev: Event) {
     ev.preventDefault();
     const form = ev.target as HTMLFormElement;
     const fileInput = form.querySelector('input[type=file]') as HTMLInputElement;
     if (!fileInput?.files || fileInput.files.length === 0) return;
+    if (!selectedCompanyId) { uploadError = 'Please select a company'; return; }
+    if (!selectedYear) { uploadError = 'Please enter a year'; return; }
     const formData = new FormData();
     formData.append('original_file', fileInput.files[0]);
+    formData.append('company', selectedCompanyId);
+    formData.append('reporting_year', selectedYear);
     uploadError = null;
     uploading = true;
     try {
@@ -40,6 +78,8 @@
     } finally {
       uploading = false;
       (form.reset && form.reset());
+      selectedCompanyId = '';
+      selectedYear = '';
     }
   }
 
@@ -58,6 +98,7 @@
 
   $effect(() => {
     loadReports();
+    loadCompanies();
   });
 </script>
 
@@ -69,7 +110,24 @@
     <button class="btn btn-neutral" type="submit">Search</button>
   </form>
 
-  <form class="flex items-center gap-3" onsubmit={onUpload}>
+  <form class="flex flex-wrap items-center gap-3" onsubmit={onUpload}>
+    <select class="select select-bordered" bind:value={selectedCompanyId}>
+      <option value="">Select company…</option>
+      {#each companies as c}
+        <option value={String(c.id)}>{c.name}</option>
+      {/each}
+    </select>
+    <div class="flex items-center gap-2">
+      <input class="input input-bordered" placeholder="New company name" bind:value={newCompanyName} />
+      <button class="btn" type="button" disabled={creatingCompany || !newCompanyName.trim()} onclick={createCompany}>
+        {#if creatingCompany}
+          <span class="loading loading-spinner loading-sm"></span>
+        {:else}
+          Create
+        {/if}
+      </button>
+    </div>
+    <input class="input input-bordered w-28" type="number" min="1900" max="2100" placeholder="Year" bind:value={selectedYear} />
     <input class="file-input file-input-bordered" type="file" accept=".xhtml,.zip" />
     <button class="btn btn-primary" disabled={uploading}>
       {#if uploading}
@@ -90,6 +148,8 @@
       <table class="table">
         <thead>
           <tr>
+            <th>Company</th>
+            <th>Year</th>
             <th>Entity</th>
             <th>Reporting Period</th>
             <th>Status</th>
@@ -100,6 +160,8 @@
         <tbody>
           {#each reports as r}
             <tr class="hover">
+              <td>{r.company?.name || '—'}</td>
+              <td>{r.reporting_year || '—'}</td>
               <td>{r.entity || '—'}</td>
               <td>{r.reporting_period || '—'}</td>
               <td>{r.status}</td>
