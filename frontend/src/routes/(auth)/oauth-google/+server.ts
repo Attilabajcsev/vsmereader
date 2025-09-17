@@ -39,5 +39,5 @@ export const GET = async (event) => {
 	} catch (err) {
 		console.log(`Error with Google Auth ${err}`);
 	}
-	throw redirect(303, '/');
+    throw redirect(303, '/portfolio');
 };

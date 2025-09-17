@@ -127,8 +127,9 @@
   }
 </script>
 
-<div class="p-6 space-y-6">
-  <button class="btn btn-ghost" onclick={() => goto('/reports')}>← Back</button>
+<div class="p-6">
+  <div class="mx-auto max-w-5xl space-y-6">
+    <button class="btn btn-ghost" onclick={() => goto('/reports')}>← Back</button>
 
   {#if !report}
     <div>Loading…</div>
@@ -200,7 +201,7 @@
         <input class="input input-bordered w-full max-w-xs" placeholder="Filter facts (concept/value)" bind:value={q} onchange={() => { pageNum = 1; loadFacts(); }} />
         <button class="btn" onclick={() => { pageNum = 1; loadFacts(); }}>Apply</button>
       </div>
-      <div class="overflow-x-auto" id="facts-table">
+      <div class="overflow-x-auto rounded border" id="facts-table">
         <table class="table">
           <thead>
             <tr>
@@ -235,6 +236,7 @@
       </div>
     </div>
   {/if}
+  </div>
 </div>
 
 

@@ -4,7 +4,7 @@ import * as api from '$lib/api.js';
 
 export async function load({ locals }) {
 	if (locals.authed) {
-		redirect(303, '/main');
+        redirect(303, '/portfolio');
 	}
 }
 
@@ -35,7 +35,7 @@ export const actions: Actions = {
 			sameSite: 'lax'
 		}); // expires in 1 week
 
-		console.log('login successful. Redirecting..');
-		redirect(303, '/main');
+        console.log('login successful. Redirecting..');
+        redirect(303, '/portfolio');
 	}
 };

@@ -28,8 +28,8 @@ urlpatterns = [
     path("reports/<int:report_id>/download/oim-json/", views.download_oim_json, name="download_oim_json"),
     path("companies/", views.companies_list, name="companies_list"),
     path("companies", views.companies_list),  # allow missing trailing slash for POST
-    # vSME Register
-    path("register/", views.register_list, name="register_list"),
-    path("register/export.csv", views.register_export_csv, name="register_export_csv"),
-    path("register/<int:company_id>/<int:year>/", views.register_detail, name="register_detail"),
+    # vSME Register (avoid conflict with user registration endpoint)
+    path("vsme-register/", views.register_list, name="vsme_register_list"),
+    path("vsme-register/export.csv", views.register_export_csv, name="vsme_register_export_csv"),
+    path("vsme-register/<int:company_id>/<int:year>/", views.register_detail, name="vsme_register_detail"),
 ]

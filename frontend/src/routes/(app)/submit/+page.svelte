@@ -72,14 +72,14 @@
 </script>
 
 <div class="min-h-[80vh] grid place-items-center p-6">
-  <div class="w-full max-w-md rounded-box border p-6 space-y-4">
+  <div class="w-full max-w-lg rounded-box border bg-base-100 p-6 space-y-5">
     <h1 class="text-2xl font-semibold text-center">Submit report</h1>
     <form class="space-y-4" onsubmit={onSubmit}>
       {#if uploadError}
         <div class="alert alert-error"><span>{uploadError}</span></div>
       {/if}
       <div class="form-control">
-        <label class="label" for="company-select"><span class="label-text">Company</span></label>
+        <div class="mb-1 text-sm font-medium">Company</div>
         <select id="company-select" class="select select-bordered w-full" bind:value={selectedCompanyId}>
           <option value="">Select company…</option>
           {#each companies as c}
@@ -88,7 +88,7 @@
         </select>
       </div>
       <div class="form-control">
-        <label class="label" for="new-company"><span class="label-text">Or create company</span></label>
+        <div class="mb-1 text-sm font-medium">Or create company</div>
         <div class="flex gap-2">
           <input id="new-company" class="input input-bordered flex-1" placeholder="Acme Ltd" bind:value={newCompanyName} />
           <button class="btn" type="button" disabled={creatingCompany || !newCompanyName.trim()} onclick={createCompany}>
@@ -101,20 +101,22 @@
         </div>
       </div>
       <div class="form-control">
-        <label class="label" for="tax-year"><span class="label-text">Tax year</span></label>
-        <input id="tax-year" class="input input-bordered" type="number" min="1900" max="2100" placeholder="2024" bind:value={selectedYear} />
+        <div class="mb-1 text-sm font-medium">Tax year</div>
+        <input id="tax-year" class="input input-bordered w-36" type="number" min="1900" max="2100" placeholder="2024" bind:value={selectedYear} />
       </div>
       <div class="form-control">
-        <label class="label" for="ixbrl-file"><span class="label-text">iXBRL file (.xhtml or .zip)</span></label>
-        <input id="ixbrl-file" class="file-input file-input-bordered" type="file" accept=".xhtml,.zip" />
+        <div class="mb-1 text-sm font-medium">iXBRL file (.xhtml or .zip)</div>
+        <input id="ixbrl-file" class="file-input file-input-bordered w-full" type="file" accept=".xhtml,.zip" />
       </div>
-      <button class="btn btn-primary w-full" type="submit" disabled={uploading}>
-        {#if uploading}
-          <span class="loading loading-spinner loading-sm"></span> Uploading…
-        {:else}
-          Submit
-        {/if}
-      </button>
+      <div class="pt-2">
+        <button class="btn btn-primary w-full sm:w-auto" type="submit" disabled={uploading}>
+          {#if uploading}
+            <span class="loading loading-spinner loading-sm"></span> Uploading…
+          {:else}
+            Submit
+          {/if}
+        </button>
+      </div>
     </form>
   </div>
   
