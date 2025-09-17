@@ -10,6 +10,8 @@
 	<div class="navbar bg-base-100 border-base-300 border shadow-md">
 		<div class="navbar-start">
 			<a class="btn btn-ghost text-xl" href="/main">Email Assistant</a>
+			<a class="btn btn-ghost" href="/submit">Submit report</a>
+			<a class="btn btn-ghost" href="/portfolio">Portfolio</a>
 		</div>
 		<div class="navbar-center hidden lg:flex"></div>
 		<div class="navbar-end">

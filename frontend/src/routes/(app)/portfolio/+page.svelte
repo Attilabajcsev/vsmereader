@@ -12,8 +12,6 @@
     }
   }
 
-  
-
   async function onDelete(id: number) {
     if (!confirm('Delete this report?')) return;
     deleting[id] = true;
@@ -27,13 +25,11 @@
     }
   }
 
-  $effect(() => {
-    loadReports();
-  });
+  $effect(() => { loadReports(); });
 </script>
 
 <div class="p-6 space-y-6">
-  <h1 class="text-2xl font-semibold">Reports</h1>
+  <h1 class="text-2xl font-semibold">Portfolio</h1>
 
   <form class="flex items-center gap-3" onsubmit={(e) => { e.preventDefault(); loadReports(); }}>
     <input class="input input-bordered w-full max-w-xs" placeholder="Filter by entity or period" bind:value={q} />
@@ -41,7 +37,7 @@
   </form>
 
   {#if reports.length === 0}
-    <div class="text-sm opacity-75">You haven’t uploaded any reports.</div>
+    <div class="text-sm opacity-75">No reports found.</div>
   {:else}
     <div class="overflow-x-auto">
       <table class="table">
