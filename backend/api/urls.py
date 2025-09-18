@@ -26,6 +26,8 @@ urlpatterns = [
     path("reports/<int:report_id>/delete", views.report_delete),
     path("reports/<int:report_id>/download/original/", views.download_original, name="download_original"),
     path("reports/<int:report_id>/download/oim-json/", views.download_oim_json, name="download_oim_json"),
+    path("reports/<int:report_id>/document/", views.report_document, name="report_document"),
+    path("reports/<int:report_id>/asset/<path:member>", views.report_asset, name="report_asset"),
     path("companies/", views.companies_list, name="companies_list"),
     path("companies", views.companies_list),  # allow missing trailing slash for POST
     # vSME Register (avoid conflict with user registration endpoint)

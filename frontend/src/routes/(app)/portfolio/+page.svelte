@@ -92,6 +92,7 @@
               </div>
               <div class="flex items-center gap-2 justify-start sm:justify-end">
                 <button class="btn btn-ghost btn-sm" onclick={() => goto(`/reports/${r.id}`)}>Open</button>
+                <a class="btn btn-ghost btn-sm" href={`/api/reports/${r.id}/document/`} target="_blank">Inspect</a>
                 <button class="btn btn-error btn-sm" disabled={!!deleting[r.id]} onclick={() => onDelete(r.id)}>Delete</button>
               </div>
             </div>

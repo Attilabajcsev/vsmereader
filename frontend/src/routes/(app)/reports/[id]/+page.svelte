@@ -125,6 +125,12 @@
       // ignore
     }
   }
+
+  function inspectInline() {
+    const id = getId();
+    if (!id) return;
+    window.open(`../../api/reports/${id}/document/`, '_blank');
+  }
 </script>
 
 <div class="p-6">
@@ -194,6 +200,7 @@
       {#if report.oim_json_file_url}
         <a class="btn" href={`../../api/reports/${report.id}/download/oim-json/`}>Download extracted JSON</a>
       {/if}
+      <button class="btn" onclick={inspectInline}>Inspect report</button>
     </div>
 
     <div class="mt-6 space-y-3">

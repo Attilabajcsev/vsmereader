@@ -21,6 +21,12 @@
   }
 
   $effect(() => { load(); });
+
+  function openReport() {
+    if (row?.last_report) {
+      window.open(`/api/reports/${row.last_report}/document/`, '_blank');
+    }
+  }
 </script>
 
 <div class="p-6 space-y-4">
@@ -35,7 +41,10 @@
         <div>Entity: {row.entity_identifier || '—'}</div>
         <div>Completeness: {row.completeness_score}%</div>
         {#if row.last_report}
-          <div>Last report: <a class="link" href={`/reports/${row.last_report}`}>#{row.last_report}</a></div>
+          <div class="flex items-center gap-3">
+            <div>Last report: <a class="link" href={`/reports/${row.last_report}`}>#{row.last_report}</a></div>
+            <button class="btn btn-sm" onclick={openReport}>Inspect report</button>
+          </div>
         {/if}
         <div>Updated: {new Date(row.updated_at).toLocaleString()}</div>
       </div>

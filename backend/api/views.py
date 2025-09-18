@@ -28,6 +28,9 @@ import json
 from typing import Any
 from .processing import process_report_async
 from .oim import extract_metadata, extract_facts
+import mimetypes
+import zipfile as _zipfile
+from urllib.parse import unquote
 
 logger = logging.getLogger(__name__)
 
@@ -331,6 +334,100 @@ def download_oim_json(request: Request, report_id: int):
     response = FileResponse(report.oim_json_file.open("rb"), as_attachment=True, filename=report.oim_json_file.name.split("/")[-1])
     return response
 
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def report_document(request: Request, report_id: int):
+    """Return the primary HTML/XHTML document content for inline viewing.
+    If the original upload was a ZIP, extract the first .xhtml/.html entry and rewrite relative links
+    to point to the asset endpoint.
+    """
+    report = get_object_or_404(Report, id=report_id, owner=request.user)
+    if not report.original_file:
+        raise Http404
+    path = report.original_file.path
+    lower = path.lower()
+    html_content: str | None = None
+    try:
+        if lower.endswith('.zip'):
+            with _zipfile.ZipFile(path, 'r') as zf:
+                # choose first .xhtml/.html entry
+                names = [n for n in zf.namelist() if n.lower().endswith(('.xhtml', '.html'))]
+                if not names:
+                    raise Http404
+                names.sort()
+                main = names[0]
+                raw = zf.read(main)
+                try:
+                    text = raw.decode('utf-8')
+                except UnicodeDecodeError:
+                    text = raw.decode('latin-1', errors='replace')
+                # insert <base> so relative links resolve via asset endpoint
+                base_href = f"/api/reports/{report_id}/asset/"
+                html_content = _inject_base_tag(text, base_href)
+        elif lower.endswith('.xhtml') or lower.endswith('.html'):
+            with open(path, 'rb') as f:
+                raw = f.read()
+            try:
+                text = raw.decode('utf-8')
+            except UnicodeDecodeError:
+                text = raw.decode('latin-1', errors='replace')
+            html_content = text
+        else:
+            raise Http404
+    except _zipfile.BadZipFile:
+        raise Http404
+
+    from django.http import HttpResponse
+    if html_content is None:
+        raise Http404
+    # Serve as text/html to maximize browser compatibility
+    resp = HttpResponse(html_content.encode('utf-8'), content_type='text/html; charset=utf-8')
+    return resp
+
+
+def _inject_base_tag(html: str, base_href: str) -> str:
+    """Insert a <base> tag into <head> to make relative links resolve via base_href."""
+    try:
+        idx = html.lower().find('<head')
+        if idx == -1:
+            # No head; prepend base and return
+            return f'<head><base href="{base_href}" /></head>' + html
+        # find end of <head ...>
+        end = html.find('>', idx)
+        if end == -1:
+            return html
+        return html[: end + 1] + f'\n<base href="{base_href}" />\n' + html[end + 1 :]
+    except Exception:
+        return html
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def report_asset(request: Request, report_id: int, member: str):
+    """Serve a single asset from within the uploaded ZIP (for inline viewing)."""
+    report = get_object_or_404(Report, id=report_id, owner=request.user)
+    if not report.original_file or not report.original_file.path.lower().endswith('.zip'):
+        raise Http404
+    path = report.original_file.path
+    # sanitize member path
+    member = unquote(member)
+    member = member.lstrip('/').replace('..', '')
+    try:
+        with _zipfile.ZipFile(path, 'r') as zf:
+            if member not in zf.namelist():
+                # try with reports/ prefix if not provided
+                alt = f"reports/{member}"
+                if alt in zf.namelist():
+                    member = alt
+                else:
+                    raise Http404
+            data = zf.read(member)
+    except _zipfile.BadZipFile:
+        raise Http404
+    ctype, _ = mimetypes.guess_type(member)
+    from django.http import HttpResponse
+    return HttpResponse(data, content_type=ctype or 'application/octet-stream')
 
 @api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated])
