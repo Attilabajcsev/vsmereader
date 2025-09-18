@@ -40,25 +40,15 @@ async function proxy({ request, token }: { request: Request; token?: string }) {
         return new Response(response.body, { status: response.status, headers: resHeaders });
     }
 
-    // Prefer streaming the body; include duplex for Node fetch compatibility
-    const body = method === 'GET' || method === 'HEAD' ? null : (request.body as ReadableStream | null);
-    let init: RequestInit = body
-        ? ({ method, headers, body, // @ts-ignore
-             duplex: 'half' } as unknown as RequestInit)
-        : { method, headers };
     const url = buildBackendUrl(request);
     let response: Response;
-    try {
-        response = await fetch(url, init);
-    } catch (_e) {
-        // Fallback: buffer the body if streaming is not supported in this runtime
-        if (method !== 'GET' && method !== 'HEAD') {
-            const buf = await request.arrayBuffer();
-            init = { method, headers, body: buf.byteLength ? Buffer.from(buf) : null } as RequestInit;
-        } else {
-            init = { method, headers } as RequestInit;
-        }
-        response = await fetch(url, init);
+    let bufferedBody: BodyInit | null = null;
+    if (method !== 'GET' && method !== 'HEAD') {
+        const buf = await request.arrayBuffer();
+        bufferedBody = buf.byteLength ? Buffer.from(buf) : null;
+        response = await fetch(url, { method, headers, body: bufferedBody } as RequestInit);
+    } else {
+        response = await fetch(url, { method, headers } as RequestInit);
     }
     // Handle backend redirects explicitly for non-GET so we don't lose multipart bodies
     if (response.status >= 300 && response.status < 400) {
@@ -66,9 +56,8 @@ async function proxy({ request, token }: { request: Request; token?: string }) {
         if (loc) {
             const target = new URL(loc, BACKEND_URL).toString();
             if (method !== 'GET' && method !== 'HEAD') {
-                const buf = await request.arrayBuffer();
-                const body2 = buf.byteLength ? Buffer.from(buf) : null;
-                response = await fetch(target, { method, headers, body: body2 } as RequestInit);
+                // Reuse the already-buffered body on redirect to avoid re-reading the stream
+                response = await fetch(target, { method, headers, body: bufferedBody } as RequestInit);
             } else {
                 response = await fetch(target, { method, headers } as RequestInit);
             }

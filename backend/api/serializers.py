@@ -99,8 +99,8 @@ class ReportUploadSerializer(serializers.ModelSerializer):
 
     def validate_original_file(self, file):
         name = (file.name or "").lower()
-        if not (name.endswith(".xhtml") or name.endswith(".zip")):
-            raise serializers.ValidationError("Accepted file types: .xhtml or .zip (IXDS)")
+        if not (name.endswith(".xhtml") or name.endswith(".html") or name.endswith(".zip")):
+            raise serializers.ValidationError("Accepted file types: .xhtml, .html, or .zip (IXDS)")
 
         max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
         if file.size and file.size > max_bytes:

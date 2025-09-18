@@ -339,7 +339,15 @@ def companies_list(request: Request) -> Response:
         companies = Company.objects.all().order_by("name")
         return Response(CompanySerializer(companies, many=True).data)
     # POST: create or return existing (case-insensitive)
-    name = (request.data.get("name") or "").strip()
+    name = (request.data.get("name") or request.query_params.get("name") or "").strip()
+    if not name:
+        try:
+            raw = request.body.decode("utf-8") if request.body else ""
+            if raw:
+                obj = json.loads(raw)
+                name = (obj.get("name") or "").strip()
+        except Exception:
+            name = ""
     if not name:
         return Response({"name": ["Name is required."]}, status=400)
     if len(name) < 2:

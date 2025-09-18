@@ -13,6 +13,7 @@ from .register import upsert_vsme_register
 import zipfile
 import tempfile
 import shutil
+from typing import Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -135,10 +136,50 @@ def _is_oim_json_file(json_path: str) -> bool:
         return False
 
 
+def _wrap_in_report_package(html_path: str, work_base_dir: str) -> Tuple[str, str | None]:
+    """
+    Create a minimal Inline XBRL Document Set (IXDS) ZIP around a single HTML/XHTML file:
+    - META-INF/reportPackage.json (2023 spec identifier)
+    - reports/<basename>.html|xhtml
+    Returns (zip_path, temp_dir) or (html_path, None) on failure.
+    """
+    try:
+        temp_dir = tempfile.mkdtemp(prefix="ixds_pkg_", dir=work_base_dir)
+        meta_dir = os.path.join(temp_dir, "META-INF")
+        reports_dir = os.path.join(temp_dir, "reports")
+        os.makedirs(meta_dir, exist_ok=True)
+        os.makedirs(reports_dir, exist_ok=True)
+
+        # Copy source document under reports/
+        base_name = os.path.basename(html_path)
+        target_doc = os.path.join(reports_dir, base_name)
+        shutil.copy2(html_path, target_doc)
+
+        # Minimal reportPackage.json
+        meta_json_path = os.path.join(meta_dir, "reportPackage.json")
+        with open(meta_json_path, "w", encoding="utf-8") as f:
+            f.write('{"documentInfo": {"documentType": "https://xbrl.org/report-package/2023"}}')
+
+        # Build ZIP archive
+        zip_path = os.path.join(temp_dir, "package.zip")
+        with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+            # Ensure paths inside ZIP use forward slashes per spec convention
+            zf.write(meta_json_path, arcname="META-INF/reportPackage.json")
+            zf.write(target_doc, arcname=f"reports/{base_name}")
+
+        return zip_path, temp_dir
+    except Exception:
+        logger.exception("Failed to wrap HTML into IXDS package; falling back to original file")
+        return html_path, None
+
+
 def _resolve_effective_input_path(original_path: str, work_base_dir: str) -> tuple[str, str | None]:
-    """Return an input file path Arelle can open. If original is a .zip IXDS, unzip and pick first .xhtml."""
+    """Return an input file path Arelle can open. If .html, auto-wrap into IXDS. If .zip IXDS, unzip and pick first .xhtml/.html."""
     lower = original_path.lower()
-    if lower.endswith(".xhtml") or lower.endswith(".html"):
+    if lower.endswith(".html"):
+        # Auto-wrap raw HTML into a minimal IXDS ZIP so Arelle loads it reliably
+        return _wrap_in_report_package(original_path, work_base_dir)
+    if lower.endswith(".xhtml"):
         return original_path, None
     if lower.endswith(".zip"):
         try:

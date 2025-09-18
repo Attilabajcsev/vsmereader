@@ -129,7 +129,7 @@
 
 <div class="p-6">
   <div class="mx-auto max-w-5xl space-y-6">
-    <button class="btn btn-ghost" onclick={() => goto('/reports')}>← Back</button>
+    <button class="btn btn-ghost" onclick={() => goto('/portfolio')}>← Back</button>
 
   {#if !report}
     <div>Loading…</div>

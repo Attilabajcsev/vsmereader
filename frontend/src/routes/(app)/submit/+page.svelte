@@ -105,8 +105,8 @@
         <input id="tax-year" class="input input-bordered w-36" type="number" min="1900" max="2100" placeholder="2024" bind:value={selectedYear} />
       </div>
       <div class="form-control">
-        <div class="mb-1 text-sm font-medium">iXBRL file (.xhtml or .zip)</div>
-        <input id="ixbrl-file" class="file-input file-input-bordered w-full" type="file" accept=".xhtml,.zip" />
+        <div class="mb-1 text-sm font-medium">iXBRL file (.xhtml, .html, or .zip)</div>
+        <input id="ixbrl-file" class="file-input file-input-bordered w-full" type="file" accept=".xhtml,.html,.zip" />
       </div>
       <div class="pt-2">
         <button class="btn btn-primary w-full sm:w-auto" type="submit" disabled={uploading}>
