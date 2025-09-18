@@ -53,7 +53,7 @@
     uploadError = null;
     uploading = true;
     try {
-      const res = await fetch('/api/reports/upload/', { method: 'POST', body: formData, credentials: 'include' });
+      const res = await fetch('/api/reports/upload', { method: 'POST', body: formData, credentials: 'include' });
       if (!res.ok) {
         const text = await res.text();
         uploadError = text || res.statusText;

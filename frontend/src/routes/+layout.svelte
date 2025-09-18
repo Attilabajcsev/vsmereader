@@ -20,6 +20,8 @@
 		<div class="navbar-end">
 			{#if data.authed}
 				<a class="btn btn-ghost" href="/logout" data-sveltekit-preload-data="off">Logout</a>
+			{:else}
+				<a class="btn btn-ghost" href="/login">Login</a>
 			{/if}
 		</div>
 	</div>
