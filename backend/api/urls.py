@@ -15,6 +15,7 @@ urlpatterns = [
     path("token/verify/", TokenVerifyView.as_view(), name="verify_token"),
     path("token/refresh/", TokenRefreshView.as_view(), name="refresh_token"),
     path("user/profile/", views.user_profile, name="user_profile"),
+    path("health/", views.health, name="health"),
     # Reports
     path("reports/", views.report_list, name="report_list"),
     path("reports/upload/", views.report_upload, name="report_upload"),

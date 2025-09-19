@@ -23,12 +23,13 @@ export async function handle({ event, resolve }) {
 					const refreshResponse = await api.post(REFRESH_URL, { refresh: refreshToken });
 
 					if (refreshResponse.access) {
-						event.cookies.set('accessToken', refreshResponse.access, {
-							httpOnly: true,
-							path: '/',
-							maxAge: 60 * 60,
-							sameSite: 'lax'
-						});
+                        event.cookies.set('accessToken', refreshResponse.access, {
+                            httpOnly: true,
+                            path: '/',
+                            maxAge: 60 * 60,
+                            sameSite: 'lax',
+                            secure: event.url.protocol === 'https:'
+                        });
 						event.locals.authed = true;
 						accessToken = refreshResponse.access;
 					} else clearCookies(<RequestEvent>event);
@@ -48,8 +49,8 @@ export async function handle({ event, resolve }) {
 	const publicRoutes = ['/', '/login', '/register', '/login-oauth', '/oauth-google'];
 	const isPublicRoute = publicRoutes.includes(event.url.pathname);
 
-	if (!isPublicRoute) {
-		if (!event.locals.authed) redirect(302, '/');
+    if (!isPublicRoute) {
+        if (!event.locals.authed) redirect(302, '/login');
 
 		try {
 			if (!accessToken) error(401, 'Unauthorized');

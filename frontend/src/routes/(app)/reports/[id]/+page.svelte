@@ -42,7 +42,7 @@
     try {
       const res = await fetch(`../../api/reports/${id}/delete/`, { method: 'DELETE', credentials: 'include' });
       if (res.ok) {
-        goto('/reports');
+        goto('/portfolio');
       }
     } finally {
       deleteBusy = false;

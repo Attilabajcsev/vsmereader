@@ -10,3 +10,6 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+else:
+    # In production, serve media via Django for simplicity (replace with object storage in real prod)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

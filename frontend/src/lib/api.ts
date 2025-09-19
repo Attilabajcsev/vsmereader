@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 import type { ApiOptions } from './types';
 import { env } from '$env/dynamic/private';
 
-const base = env.BACKEND_URL;
+const base = env.BACKEND_URL || 'http://backend:8000/api';
 
 async function send({
 	method,

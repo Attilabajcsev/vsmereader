@@ -24,7 +24,6 @@ FROM base AS app
 COPY --from=arelle /opt/arelle /opt/arelle
 COPY backend/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
-# Ensure Arelle runtime dependencies available in final image
 RUN sh -lc "if [ -f /opt/arelle/requirements.txt ]; then \
       pip install --no-cache-dir -r /opt/arelle/requirements.txt; \
     else \
@@ -37,3 +36,5 @@ ENV ARELLE_CACHE_DIR=/app/arelle_cache
 EXPOSE 8000
 
 CMD ["sh", "-c", "python manage.py collectstatic --noinput && mkdir -p $ARELLE_CACHE_DIR && python manage.py migrate && gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers ${WEB_CONCURRENCY:-2} --threads ${WEB_THREADS:-4}"]
+
+

@@ -20,21 +20,24 @@ export const GET = async (event) => {
 		const data: { access: string; refresh: string } = await api.post('oauth-google/', {
 			id_token: oAuth2Client.credentials['id_token']
 		});
-		const accessToken = data.access;
-		const refreshToken = data.refresh;
+    	const accessToken = data.access;
+    	const refreshToken = data.refresh;
 
+		const isSecure = event.url.protocol === 'https:';
 		event.cookies.set('accessToken', accessToken, {
 			httpOnly: true,
 			path: '/',
 			maxAge: 60 * 60,
-			sameSite: 'lax'
+			sameSite: 'lax',
+			secure: isSecure
 		}); //expires in 1h
 
 		event.cookies.set('refreshToken', refreshToken, {
 			httpOnly: true,
 			path: '/',
 			maxAge: 60 * 60 * 24 * 7,
-			sameSite: 'lax'
+			sameSite: 'lax',
+			secure: isSecure
 		}); // expires in 1 week
 	} catch (err) {
 		console.log(`Error with Google Auth ${err}`);

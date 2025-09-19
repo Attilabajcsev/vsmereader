@@ -1,7 +1,7 @@
 import { env } from '$env/dynamic/private';
 import type { RequestHandler } from './$types';
 
-const BACKEND_URL = env.BACKEND_URL;
+const BACKEND_URL = env.BACKEND_URL || 'http://backend:8000/api';
 
 function buildHeaders(request: Request, token?: string) {
     const headers = new Headers(request.headers);

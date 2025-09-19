@@ -70,7 +70,7 @@ def create_user(request: Request) -> Response:
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def user_profile(request: Request) -> Response:
     """
     Gets user profile information
@@ -83,14 +83,14 @@ def user_profile(request: Request) -> Response:
         - first_name
         - last_name
     """
+    if not request.user or not request.user.is_authenticated:
+        return Response({"detail": "Authentication credentials were not provided."}, status=401)
     try:
         user: User = request.user
         serializer = UserSerializer(user)
-
         return Response(serializer.data)
-
     except Exception as e:
-        print(f"Validation errors: {str(e)}")
+        logger.exception("Failed to serialize user profile")
         return Response({"error": "Internal server error"}, status=500)
 
 
@@ -151,6 +151,24 @@ def oauth_google(request: Request) -> Response:
         return Response({"error": f"Authentication failed: {str(e)}"}, status=500)
 
 
+@api_view(["GET"])  # Liveness and basic DB readiness
+@permission_classes([AllowAny])
+def health(request: Request) -> Response:
+    from django.db import connection
+    ok = True
+    db = "ok"
+    try:
+        with connection.cursor() as cur:
+            cur.execute("SELECT 1")
+            cur.fetchone()
+    except Exception as e:
+        ok = False
+        db = f"error: {e}"
+    data = {"status": "ok" if ok else "error", "db": db}
+    status_code = 200 if ok else 503
+    return Response(data, status=status_code)
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])
@@ -159,6 +177,7 @@ def report_upload(request: Request) -> Response:
     if serializer.is_valid():
         report: Report = serializer.save()
         process_report_async(report.id)
+        _maybe_schedule_cleanup()
         return Response({"id": report.id, "status": report.status}, status=201)
     return Response(serializer.errors, status=400)
 
@@ -315,14 +334,44 @@ def report_delete(request: Request, report_id: int) -> Response:
     return Response({"deleted": True})
 
 
+def _maybe_schedule_cleanup():
+    from django.conf import settings as dj_settings
+    days = getattr(dj_settings, "REPORT_RETENTION_DAYS", 0)
+    if not days:
+        return
+    # Best-effort cleanup trigger; real cron should do this in production
+    try:
+        from django.utils import timezone
+        cutoff = timezone.now() - timezone.timedelta(days=days)
+        qs = Report.objects.filter(created_at__lt=cutoff)
+        if qs.exists():
+            deleted = 0
+            for r in qs[:100]:  # limit per call
+                try:
+                    r.delete()
+                    deleted += 1
+                except Exception:
+                    pass
+            if deleted:
+                logger.info("Retention cleanup removed %s old reports", deleted)
+    except Exception:
+        pass
+
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def download_original(request: Request, report_id: int):
     report = get_object_or_404(Report, id=report_id, owner=request.user)
     if not report.original_file:
         raise Http404
-    response = FileResponse(report.original_file.open("rb"), as_attachment=True, filename=report.original_file.name.split("/")[-1])
-    return response
+    try:
+        f = report.original_file.open("rb")
+    except FileNotFoundError:
+        report.original_file = None
+        report.save(update_fields=["original_file", "updated_at"])
+        raise Http404
+    filename = report.original_file.name.split("/")[-1]
+    return FileResponse(f, as_attachment=True, filename=filename)
 
 
 @api_view(["GET"])
@@ -331,8 +380,14 @@ def download_oim_json(request: Request, report_id: int):
     report = get_object_or_404(Report, id=report_id, owner=request.user)
     if not report.oim_json_file:
         raise Http404
-    response = FileResponse(report.oim_json_file.open("rb"), as_attachment=True, filename=report.oim_json_file.name.split("/")[-1])
-    return response
+    try:
+        f = report.oim_json_file.open("rb")
+    except FileNotFoundError:
+        report.oim_json_file = None
+        report.save(update_fields=["oim_json_file", "updated_at"])
+        raise Http404
+    filename = report.oim_json_file.name.split("/")[-1]
+    return FileResponse(f, as_attachment=True, filename=filename)
 
 
 @api_view(["GET"])
@@ -366,8 +421,11 @@ def report_document(request: Request, report_id: int):
                 base_href = f"/api/reports/{report_id}/asset/"
                 html_content = _inject_base_tag(text, base_href)
         elif lower.endswith('.xhtml') or lower.endswith('.html'):
-            with open(path, 'rb') as f:
-                raw = f.read()
+            try:
+                with open(path, 'rb') as f:
+                    raw = f.read()
+            except FileNotFoundError:
+                raise Http404
             try:
                 text = raw.decode('utf-8')
             except UnicodeDecodeError:
@@ -423,7 +481,7 @@ def report_asset(request: Request, report_id: int, member: str):
                 else:
                     raise Http404
             data = zf.read(member)
-    except _zipfile.BadZipFile:
+    except (FileNotFoundError, _zipfile.BadZipFile):
         raise Http404
     ctype, _ = mimetypes.guess_type(member)
     from django.http import HttpResponse

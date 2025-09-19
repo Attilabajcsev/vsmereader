@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	import { goto } from '$app/navigation';
+    import { goto } from '$app/navigation';
+    let { form } = $props();
 </script>
 
 <div class="hero bg-base-200 min-h-[95vh]">
@@ -10,7 +10,7 @@
 		</div>
 		<div class="card bg-base-100 w-full max-w-sm min-w-sm shrink-0 shadow-2xl">
 			<div class="card-body">
-				<form action="?/login" method="post" use:enhance>
+                <form action="?/login" method="post">
 					<fieldset class="fieldset">
 						<label for="email" class="label">Email</label>
 						<input
@@ -31,10 +31,13 @@
 							placeholder="Password"
 						/>
 						<div><a class="link link-hover" href="/">Forgot password?</a></div>
-						<button type="submit" class="btn btn-neutral mt-4"> Login </button>
+                        <button type="submit" class="btn btn-neutral mt-4"> Login </button>
 						<button type="button" class="btn" onclick={() => goto('/')}> Back </button>
 					</fieldset>
 				</form>
+                {#if form?.message}
+                    <div class="alert alert-error mt-3">{form.message}</div>
+                {/if}
 			</div>
 		</div>
 	</div>

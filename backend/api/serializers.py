@@ -126,6 +126,17 @@ class ReportUploadSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"company": "Company is required"})
         if not year:
             raise serializers.ValidationError({"reporting_year": "Reporting year is required"})
+        # Optional per-user quota enforcement
+        from django.contrib.auth.models import AnonymousUser
+        from django.conf import settings as dj_settings
+        user = getattr(self.context.get("request"), "user", None)
+        max_reports = getattr(dj_settings, "MAX_REPORTS_PER_USER", 0)
+        if max_reports and user and not isinstance(user, AnonymousUser):
+            count = Report.objects.filter(owner=user).count()
+            if count >= max_reports:
+                raise serializers.ValidationError({
+                    "non_field_errors": [f"Report quota exceeded. Max {max_reports} reports per user."],
+                })
         # Enforce uniqueness per company-year
         exists = Report.objects.filter(company=company, reporting_year=year).exists()
         if exists:
