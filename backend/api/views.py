@@ -28,6 +28,7 @@ import json
 from typing import Any
 from .processing import process_report_async
 from .oim import extract_metadata, extract_facts
+from .register import upsert_vsme_register, recompute_vsme_register, rebuild_all_vsme_registers
 import mimetypes
 import zipfile as _zipfile
 from urllib.parse import unquote
@@ -330,7 +331,10 @@ def report_summary(request: Request, report_id: int) -> Response:
 @permission_classes([IsAuthenticated])
 def report_delete(request: Request, report_id: int) -> Response:
     report = get_object_or_404(Report, id=report_id, owner=request.user)
+    company_id = report.company_id
+    year = report.reporting_year
     report.delete()
+    recompute_vsme_register(company_id, year)
     return Response({"deleted": True})
 
 
@@ -546,6 +550,14 @@ def register_list(request: Request) -> Response:
 def register_detail(request: Request, company_id: int, year: int) -> Response:
     row = get_object_or_404(VsmeRegister.objects.select_related("company"), company_id=company_id, year=year)
     return Response(VsmeRegisterDetailSerializer(row).data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def register_rebuild(request: Request) -> Response:
+    """Maintenance endpoint: rebuild all VsmeRegister rows from current VALIDATED reports."""
+    result = rebuild_all_vsme_registers()
+    return Response({"ok": True, **result})
 
 
 @api_view(["GET"])

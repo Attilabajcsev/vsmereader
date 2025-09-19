@@ -35,4 +35,5 @@ urlpatterns = [
     path("vsme-register/", views.register_list, name="vsme_register_list"),
     path("vsme-register/export.csv", views.register_export_csv, name="vsme_register_export_csv"),
     path("vsme-register/<int:company_id>/<int:year>/", views.register_detail, name="vsme_register_detail"),
+    path("vsme-register/rebuild/", views.register_rebuild, name="vsme_register_rebuild"),
 ]

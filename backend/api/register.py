@@ -4,6 +4,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Any, Dict, Iterable, Tuple
 from django.db import transaction
 from .models import Report, Fact, VsmeRegister
+import logging
 
 
 def _to_decimal(value: str | None) -> Decimal | None:
@@ -136,4 +137,75 @@ def upsert_vsme_register(report: Report) -> VsmeRegister:
             row.save()
     return row
 
+
+def recompute_vsme_register(company_id: int, year: int) -> None:
+    """Recompute or remove VsmeRegister for a company-year after report deletion.
+
+    - If there is any remaining VALIDATED report for the same company-year, upsert from the latest one.
+    - If none remain, delete the VsmeRegister row if present.
+    """
+    try:
+        latest = (
+            Report.objects.filter(
+                company_id=company_id,
+                reporting_year=year,
+                status=Report.Status.VALIDATED,
+            )
+            .order_by("-created_at")
+            .first()
+        )
+        if latest:
+            upsert_vsme_register(latest)
+        else:
+            row = VsmeRegister.objects.filter(company_id=company_id, year=year).first()
+            if row:
+                row.delete()
+    except Exception:
+        logging.getLogger(__name__).exception(
+            "Failed to recompute VsmeRegister for company=%s year=%s", company_id, year
+        )
+
+
+def rebuild_all_vsme_registers() -> dict:
+    """Rebuild the entire VsmeRegister table from current VALIDATED reports.
+
+    - Upserts rows for each (company, year) that has at least one VALIDATED report
+    - Deletes VsmeRegister rows that no longer have any corresponding reports
+    Returns a summary dict of actions.
+    """
+    summary = {"upserted": 0, "deleted": 0}
+    try:
+        # Compute desired set from reports
+        desired_pairs = set(
+            Report.objects.filter(status=Report.Status.VALIDATED)
+            .values_list("company_id", "reporting_year")
+            .distinct()
+        )
+        # Upsert for each desired pair using latest report
+        for (company_id, year) in desired_pairs:
+            latest = (
+                Report.objects.filter(
+                    company_id=company_id,
+                    reporting_year=year,
+                    status=Report.Status.VALIDATED,
+                )
+                .order_by("-created_at")
+                .first()
+            )
+            if latest:
+                upsert_vsme_register(latest)
+                summary["upserted"] += 1
+
+        # Delete rows that are not in desired set
+        existing_pairs = set(
+            VsmeRegister.objects.values_list("company_id", "year")
+        )
+        to_delete = existing_pairs - desired_pairs
+        if to_delete:
+            for (company_id, year) in to_delete:
+                VsmeRegister.objects.filter(company_id=company_id, year=year).delete()
+                summary["deleted"] += 1
+    except Exception:
+        logging.getLogger(__name__).exception("Failed full rebuild of VsmeRegister")
+    return summary
 
