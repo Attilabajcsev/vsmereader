@@ -10,13 +10,6 @@
   let pageNum: number = $state(1);
   let pageSize: number = $state(50);
   let deleteBusy: boolean = $state(false);
-  const conceptFilters: Record<string, string> = {
-    ghg_total: 'GHGEmissions',
-    energy_consumption: 'EnergyConsumption',
-    water_withdrawal: 'WaterWithdrawal',
-    waste_generated: 'WasteGenerated',
-    employees: 'NumberOfEmployees'
-  };
 
   function getId(): string {
     const m = globalThis.location?.pathname.match(/\/reports\/(\d+)/);
@@ -107,24 +100,6 @@
     }
   }
 
-  async function viewDatapoint(item: any) {
-    const filter = conceptFilters[item?.code] || '';
-    if (!filter) return;
-    q = filter;
-    pageNum = 1;
-    await loadFacts();
-    const el = document.getElementById('facts-table');
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  async function copyValue(item: any) {
-    const text = item?.value ?? '';
-    try {
-      await navigator.clipboard.writeText(String(text));
-    } catch (e) {
-      // ignore
-    }
-  }
 
   function inspectInline() {
     const id = getId();
@@ -135,72 +110,72 @@
 
 <div class="p-6">
   <div class="mx-auto max-w-5xl space-y-6">
-    <button class="btn btn-ghost" onclick={() => goto('/portfolio')}>← Back</button>
+    <div class="flex items-start justify-between">
+      <div>
+        <button class="btn btn-ghost" onclick={() => goto('/portfolio')}>← Back</button>
+        <h1 class="text-2xl font-semibold mt-2">Report #{report?.id ?? ''}</h1>
+        <div class="text-sm opacity-80 mt-1">
+          <span>Company: {report?.company?.name || '—'}</span>
+          <span class="mx-2">•</span>
+          <span>Year: {report?.reporting_year || '—'}</span>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-error btn-sm" disabled={deleteBusy} onclick={onDelete}>Delete</button>
+      </div>
+    </div>
 
   {#if !report}
     <div>Loading…</div>
   {:else}
-    <div class="space-y-2">
-      <h1 class="text-2xl font-semibold">Report #{report.id}</h1>
-      <button class="btn btn-error btn-sm" disabled={deleteBusy} onclick={onDelete}>Delete</button>
-      <div class="text-sm opacity-80">
-        <div>Company: {report.company?.name || '—'}</div>
-        <div>Year: {report.reporting_year || '—'}</div>
-        <div>Entity: {report.entity || '—'}</div>
-        <div>Reporting Period: {report.reporting_period || '—'}</div>
-        <div>Taxonomy Version: {report.taxonomy_version || '—'}</div>
-        <div>Status: {report.status}</div>
-        <div>Created: {new Date(report.created_at).toLocaleString()}</div>
-      </div>
-    </div>
-
-    <div class="rounded border p-4">
-      {#if report.status === 'validated'}
-        <div class="text-success">Validated</div>
-        {#if report.validation_summary}
-          <pre class="whitespace-pre-wrap text-xs opacity-80">{report.validation_summary}</pre>
-        {/if}
-      {:else if report.status === 'failed'}
-        <div class="text-error">Failed</div>
-        {#if report.failure_reason}
-          <pre class="whitespace-pre-wrap text-xs opacity-80">{report.failure_reason}</pre>
-        {/if}
-      {:else}
-        <div>Processing…</div>
-      {/if}
-    </div>
-
-    {#if summary}
-      <div class="rounded border p-4 space-y-2">
-        <div class="flex items-center justify-between">
-          <h2 class="text-lg font-semibold">vSME ESG Summary</h2>
-          <div class="text-sm opacity-80">{summary.required_count} required / {summary.present_count} present</div>
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="rounded border p-4">
+        <div class="text-sm opacity-80 space-y-1">
+          <div>Entity: {report.entity || '—'}</div>
+          <div>Reporting Period: {report.reporting_period || '—'}</div>
+          <div>Taxonomy Version: {report.taxonomy_version || '—'}</div>
+          <div>Status: <span class="badge {report.status === 'validated' ? 'badge-success' : report.status === 'failed' ? 'badge-error' : 'badge-ghost'}">{report.status}</span></div>
+          <div>Created: {new Date(report.created_at).toLocaleString()}</div>
         </div>
-        <div class="text-sm opacity-80">Entity: {summary.entity || '—'} • Period: {summary.reporting_period || '—'} • Facts: {summary.fact_count}</div>
-        <div class="flex flex-col gap-2">
-          {#each summary.items as item}
-            <div class="flex items-center gap-2">
-              <div class={`badge ${item.present ? 'badge-success' : 'badge-ghost'}`} title={item.value || ''}>
-                {item.label}{item.present && item.value ? `: ${item.value}` : ''}
-              </div>
-              <div class="ml-1 flex gap-2">
-                <button class="btn btn-xs" disabled={!item.present} onclick={() => viewDatapoint(item)}>View datapoint</button>
-                <button class="btn btn-xs" disabled={!item.present || !item.value} onclick={() => copyValue(item)}>Copy value</button>
-              </div>
-            </div>
-          {/each}
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          {#if report.original_file_url}
+            <a class="btn btn-sm" href={`../../api/reports/${report.id}/download/original/`}>Download original iXBRL</a>
+          {/if}
+          {#if report.oim_json_file_url}
+            <a class="btn btn-sm" href={`../../api/reports/${report.id}/download/oim-json/`}>Download extracted JSON</a>
+          {/if}
+          <button class="btn btn-sm" onclick={inspectInline}>Inspect report</button>
         </div>
       </div>
-    {/if}
 
-    <div class="flex gap-3">
-      {#if report.original_file_url}
-        <a class="btn" href={`../../api/reports/${report.id}/download/original/`}>Download original iXBRL</a>
-      {/if}
-      {#if report.oim_json_file_url}
-        <a class="btn" href={`../../api/reports/${report.id}/download/oim-json/`}>Download extracted JSON</a>
-      {/if}
-      <button class="btn" onclick={inspectInline}>Inspect report</button>
+      <div class="rounded border p-4">
+        {#if report.status === 'validated'}
+          <h2 class="text-lg font-semibold mb-2">vSME ESG Summary</h2>
+          {#if summary}
+            <div class="text-sm opacity-80 mb-2">Entity: {summary.entity || '—'} • Period: {summary.reporting_period || '—'} • Facts: {summary.fact_count}</div>
+            <ul class="space-y-1">
+              {#each summary.items as item}
+                <li class="flex items-center justify-between">
+                  <span>{item.label}</span>
+                  <span class="badge {item.present ? 'badge-success' : 'badge-ghost'}" title={item.value || ''}>
+                    {item.present && item.value ? item.value : '—'}
+                  </span>
+                </li>
+              {/each}
+            </ul>
+          {:else}
+            <div class="opacity-70 text-sm">No summary available.</div>
+          {/if}
+        {:else if report.status === 'failed'}
+          <div class="text-error">Failed</div>
+          {#if report.failure_reason}
+            <pre class="whitespace-pre-wrap text-xs opacity-80">{report.failure_reason}</pre>
+          {/if}
+        {:else}
+          <div>Processing…</div>
+        {/if}
+      </div>
     </div>
 
     <div class="mt-6 space-y-3">
