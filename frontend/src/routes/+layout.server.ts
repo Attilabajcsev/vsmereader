@@ -1,7 +1,9 @@
 import { redirect } from '@sveltejs/kit';
 
 export function load({ locals, url }) {
-    if (!locals.authed && url.pathname.startsWith('/(app)')) {
+    const publicRoutes = ['/', '/login', '/register', '/login-oauth', '/oauth-google'];
+    const isPublicRoute = publicRoutes.includes(url.pathname);
+    if (!locals.authed && !isPublicRoute) {
         throw redirect(302, '/login');
     }
     return {

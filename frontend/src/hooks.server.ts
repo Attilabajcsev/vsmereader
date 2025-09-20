@@ -13,7 +13,7 @@ export async function handle({ event, resolve }) {
 	let accessToken = event.cookies.get('accessToken');
 	const refreshToken = event.cookies.get('refreshToken');
 
-	if (accessToken) {
+    if (accessToken) {
 		try {
 			await api.post(VERIFY_URL, { token: accessToken });
 			event.locals.authed = true;
@@ -32,7 +32,7 @@ export async function handle({ event, resolve }) {
                         });
 						event.locals.authed = true;
 						accessToken = refreshResponse.access;
-					} else clearCookies(<RequestEvent>event);
+                    } else clearCookies(<RequestEvent>event);
 				} catch (refreshError) {
 					clearCookies(<RequestEvent>event);
 					console.log(`Failed to refresh token ${refreshError}`);
@@ -42,7 +42,7 @@ export async function handle({ event, resolve }) {
 				console.log(`Failed to refresh token ${error}`);
 			}
 		}
-	} else clearCookies(<RequestEvent>event);
+    } else clearCookies(<RequestEvent>event);
 
 	// Protect routes that require authentication
 
@@ -50,16 +50,16 @@ export async function handle({ event, resolve }) {
 	const isPublicRoute = publicRoutes.includes(event.url.pathname);
 
     if (!isPublicRoute) {
-        if (!event.locals.authed) redirect(302, '/login');
+        if (!event.locals.authed) throw redirect(302, '/login');
 
-		try {
-			if (!accessToken) error(401, 'Unauthorized');
-			event.locals.UserData = await getUserData(accessToken);
-		} catch (err) {
-			clearCookies(<RequestEvent>event);
-			error(500, `Unable to load user profile ${err}`);
-		}
-	}
+        try {
+            if (!accessToken) throw error(401, 'Unauthorized');
+            event.locals.UserData = await getUserData(accessToken);
+        } catch (err) {
+            clearCookies(<RequestEvent>event);
+            throw error(500, `Unable to load user profile ${err}`);
+        }
+    }
 
 	return await resolve(event);
 }
@@ -89,6 +89,6 @@ async function getUserData(accessToken: string): Promise<UserData> {
 		return data;
 	} catch (err) {
 		console.log(`Failed to fetch user ${err}`);
-		error(500, `Failed to fetch user ${err}`);
+        throw error(500, `Failed to fetch user ${err}`);
 	}
 }
