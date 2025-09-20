@@ -7,6 +7,7 @@
 	<div class="flex-col">
 		<div class="mb-10 text-center lg:text-left">
 			<h1 class="text-5xl font-bold">Login now!</h1>
+			<p class="mt-2 text-sm opacity-70">Demo instance — for testing only</p>
 		</div>
 		<div class="card bg-base-100 w-full max-w-sm min-w-sm shrink-0 shadow-2xl">
 			<div class="card-body">
