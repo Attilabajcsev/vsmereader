@@ -108,7 +108,7 @@
   }
 </script>
 
-<div class="p-6">
+<div class="p-6 bg-base-200/40 min-h-screen">
   <div class="mx-auto max-w-5xl space-y-6">
     <div class="flex items-start justify-between">
       <div>
@@ -129,7 +129,7 @@
     <div>Loading…</div>
   {:else}
     <div class="grid gap-4 md:grid-cols-2">
-      <div class="rounded border p-4">
+      <div class="rounded-box border border-base-300 bg-base-100 p-4 shadow-sm">
         <div class="text-sm opacity-80 space-y-1">
           <div>Entity: {report.entity || '—'}</div>
           <div>Reporting Period: {report.reporting_period || '—'}</div>
@@ -149,7 +149,7 @@
         </div>
       </div>
 
-      <div class="rounded border p-4">
+      <div class="rounded-box border border-base-300 bg-base-100 p-4 shadow-sm">
         {#if report.status === 'validated'}
           <h2 class="text-lg font-semibold mb-2">vSME ESG Summary</h2>
           {#if summary}
@@ -183,7 +183,7 @@
         <input class="input input-bordered w-full max-w-xs" placeholder="Filter facts (concept/value)" bind:value={q} onchange={() => { pageNum = 1; loadFacts(); }} />
         <button class="btn" onclick={() => { pageNum = 1; loadFacts(); }}>Apply</button>
       </div>
-      <div class="overflow-x-auto rounded border" id="facts-table">
+      <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100 shadow-sm" id="facts-table">
         <table class="table">
           <thead>
             <tr>

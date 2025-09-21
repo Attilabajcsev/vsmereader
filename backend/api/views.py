@@ -409,21 +409,27 @@ def report_document(request: Request, report_id: int):
     html_content: str | None = None
     try:
         if lower.endswith('.zip'):
-            with _zipfile.ZipFile(path, 'r') as zf:
-                # choose first .xhtml/.html entry
-                names = [n for n in zf.namelist() if n.lower().endswith(('.xhtml', '.html'))]
-                if not names:
-                    raise Http404
-                names.sort()
-                main = names[0]
-                raw = zf.read(main)
-                try:
-                    text = raw.decode('utf-8')
-                except UnicodeDecodeError:
-                    text = raw.decode('latin-1', errors='replace')
-                # insert <base> so relative links resolve via asset endpoint
-                base_href = f"/api/reports/{report_id}/asset/"
-                html_content = _inject_base_tag(text, base_href)
+            try:
+                with _zipfile.ZipFile(path, 'r') as zf:
+                    # choose first .xhtml/.html entry
+                    names = [n for n in zf.namelist() if n.lower().endswith(('.xhtml', '.html'))]
+                    if not names:
+                        raise Http404
+                    names.sort()
+                    main = names[0]
+                    raw = zf.read(main)
+                    try:
+                        text = raw.decode('utf-8')
+                    except UnicodeDecodeError:
+                        text = raw.decode('latin-1', errors='replace')
+                    # insert <base> so relative links resolve via asset endpoint
+                    base_href = f"/api/reports/{report_id}/asset/"
+                    html_content = _inject_base_tag(text, base_href)
+            except FileNotFoundError:
+                # File missing on disk (likely after container rebuild); clear field and 404
+                report.original_file = None
+                report.save(update_fields=["original_file", "updated_at"])
+                raise Http404
         elif lower.endswith('.xhtml') or lower.endswith('.html'):
             try:
                 with open(path, 'rb') as f:

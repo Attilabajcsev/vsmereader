@@ -71,8 +71,8 @@
   $effect(() => { loadCompanies(); });
 </script>
 
-<div class="min-h-[80vh] grid place-items-center p-6">
-  <div class="w-full max-w-lg rounded-box border bg-base-100 p-6 space-y-5">
+<div class="min-h-screen bg-base-200/40 py-10 px-4">
+  <div class="mx-auto w-full max-w-2xl rounded-box border border-base-300 bg-base-100 p-6 shadow-md space-y-5">
     <h1 class="text-2xl font-semibold text-center">Submit report</h1>
     <form class="space-y-4" onsubmit={onSubmit}>
       {#if uploadError}
@@ -119,7 +119,6 @@
       </div>
     </form>
   </div>
-  
 </div>
 
 

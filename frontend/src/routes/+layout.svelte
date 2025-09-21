@@ -7,22 +7,37 @@
 </script>
 
 <div class="flex min-h-screen flex-col">
-	<div class="navbar bg-base-100 border-base-300 border shadow-md">
-		<div class="navbar-start">
-			<span class="btn btn-ghost text-xl pointer-events-none select-none">IXBRL VSME Reader</span>
-			{#if data.authed}
-				<a class="btn btn-ghost" href="/submit">Submit report</a>
-				<a class="btn btn-ghost" href="/portfolio">Portfolio</a>
-				<a class="btn btn-ghost" href="/insights">Insights</a>
-			{/if}
-		</div>
-		<div class="navbar-center hidden lg:flex"></div>
-		<div class="navbar-end">
-			{#if data.authed}
-				<a class="btn btn-ghost" href="/logout" data-sveltekit-preload-data="off">Logout</a>
-			{:else}
-				<a class="btn btn-ghost" href="/login">Login</a>
-			{/if}
+	<!-- CVR-like ribbon: taller, segmented, login area highlighted -->
+	<div class="bg-base-100/95 border-b border-base-300 shadow-sm">
+		<div class="w-full">
+			<div class="flex items-stretch">
+				<!-- Left section: brand -->
+				<div class="px-4 py-6 flex items-center">
+					<a class="text-xl font-semibold select-none">IXBRL VSME Reader</a>
+				</div>
+				<!-- Divider -->
+				<div class="w-px bg-base-300/80 my-2"></div>
+				<!-- Middle section: nav links -->
+				<div class="flex items-center px-1">
+					{#if data.authed}
+						<a class="px-4 py-6 hover:bg-base-200/60" href="/submit">Submit report</a>
+						<div class="w-px bg-base-300/80 my-2"></div>
+						<a class="px-4 py-6 hover:bg-base-200/60" href="/portfolio">Portfolio</a>
+						<div class="w-px bg-base-300/80 my-2"></div>
+						<a class="px-4 py-6 hover:bg-base-200/60" href="/insights">Insights</a>
+					{/if}
+				</div>
+				<!-- Spacer -->
+				<div class="flex-1"></div>
+				<!-- Right section: login area with blue background -->
+				<div class="flex items-stretch">
+					{#if data.authed}
+						<a class="px-6 py-6 bg-primary text-primary-content hover:opacity-90" href="/logout" data-sveltekit-preload-data="off">Logout</a>
+					{:else}
+						<a class="px-6 py-6 bg-primary text-primary-content hover:opacity-90" href="/login">Login</a>
+					{/if}
+				</div>
+			</div>
 		</div>
 	</div>
 
@@ -30,7 +45,7 @@
 		{@render children()}
 	</div>
 
-	<footer class="footer sm:footer-horizontal footer-center bg-base-300 text-base-content p-4">
+	<footer class="footer sm:footer-horizontal footer-center bg-base-300/70 text-base-content p-4">
 		<aside>
 			<p>Copyright © {new Date().getFullYear()} - IXBRL VSME Reader</p>
 		</aside>

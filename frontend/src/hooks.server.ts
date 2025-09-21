@@ -10,39 +10,15 @@ const userCache = new Map();
 const TTL = 6 * 60 * 60 * 1000;
 
 export async function handle({ event, resolve }) {
-	let accessToken = event.cookies.get('accessToken');
-	const refreshToken = event.cookies.get('refreshToken');
+    let accessToken = event.cookies.get('accessToken');
+    const refreshToken = event.cookies.get('refreshToken');
 
+    // Do not verify on every request to avoid 429s; trust cookie presence
     if (accessToken) {
-		try {
-			await api.post(VERIFY_URL, { token: accessToken });
-			event.locals.authed = true;
-		} catch (error) {
-			if (refreshToken) {
-				try {
-					const refreshResponse = await api.post(REFRESH_URL, { refresh: refreshToken });
-
-					if (refreshResponse.access) {
-                        event.cookies.set('accessToken', refreshResponse.access, {
-                            httpOnly: true,
-                            path: '/',
-                            maxAge: 60 * 60,
-                            sameSite: 'lax',
-                            secure: event.url.protocol === 'https:'
-                        });
-						event.locals.authed = true;
-						accessToken = refreshResponse.access;
-                    } else clearCookies(<RequestEvent>event);
-				} catch (refreshError) {
-					clearCookies(<RequestEvent>event);
-					console.log(`Failed to refresh token ${refreshError}`);
-				}
-			} else {
-				clearCookies(<RequestEvent>event);
-				console.log(`Failed to refresh token ${error}`);
-			}
-		}
-    } else clearCookies(<RequestEvent>event);
+        event.locals.authed = true;
+    } else {
+        clearCookies(<RequestEvent>event);
+    }
 
 	// Protect routes that require authentication
 
@@ -56,8 +32,35 @@ export async function handle({ event, resolve }) {
             if (!accessToken) throw error(401, 'Unauthorized');
             event.locals.UserData = await getUserData(accessToken);
         } catch (err) {
-            clearCookies(<RequestEvent>event);
-            throw error(500, `Unable to load user profile ${err}`);
+            // If profile fails (likely expired access), try a single refresh
+            if (refreshToken) {
+                try {
+                    const refreshResponse = await api.post(REFRESH_URL, { refresh: refreshToken });
+                    if (refreshResponse?.access) {
+                        accessToken = refreshResponse.access;
+                        event.cookies.set('accessToken', accessToken, {
+                            httpOnly: true,
+                            path: '/',
+                            maxAge: 60 * 60,
+                            sameSite: 'lax',
+                            secure: event.url.protocol === 'https:'
+                        });
+                        event.locals.authed = true;
+                        // retry profile once
+                        event.locals.UserData = await getUserData(accessToken);
+                    } else {
+                        clearCookies(<RequestEvent>event);
+                        throw redirect(302, '/login');
+                    }
+                } catch (refreshError) {
+                    // On refresh errors (incl. 429), don't thrash: keep current page and require explicit login
+                    clearCookies(<RequestEvent>event);
+                    throw redirect(302, '/login');
+                }
+            } else {
+                clearCookies(<RequestEvent>event);
+                throw redirect(302, '/login');
+            }
         }
     }
 

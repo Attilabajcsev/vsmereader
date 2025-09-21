@@ -68,7 +68,7 @@
   $effect(() => { loadAll(); });
 </script>
 
-<div class="p-6">
+<div class="p-6 bg-base-200/40 min-h-screen">
   <div class="mx-auto max-w-6xl space-y-6">
     <div class="flex items-end justify-between">
       <h1 class="text-2xl font-semibold">Insights</h1>
@@ -78,22 +78,22 @@
       <div>Loading…</div>
     {:else}
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div class="rounded-box border p-4 bg-base-100">
+        <div class="rounded-box border border-base-300 p-4 bg-base-100 shadow-sm">
           <div class="text-sm opacity-70">Total GHG emissions</div>
           <div class="text-3xl font-semibold">{fmt(totalGHG)}</div>
         </div>
-        <div class="rounded-box border p-4 bg-base-100">
+        <div class="rounded-box border border-base-300 p-4 bg-base-100 shadow-sm">
           <div class="text-sm opacity-70">Total energy consumption</div>
           <div class="text-3xl font-semibold">{fmt(totalEnergy)}</div>
         </div>
-        <div class="rounded-box border p-4 bg-base-100">
+        <div class="rounded-box border border-base-300 p-4 bg-base-100 shadow-sm">
           <div class="text-sm opacity-70">Total waste generated</div>
           <div class="text-3xl font-semibold">{fmt(totalWaste)}</div>
         </div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="rounded-box border p-4 bg-base-100">
+        <div class="rounded-box border border-base-300 p-4 bg-base-100 shadow-sm">
           <div class="flex items-center justify-between mb-2">
             <div class="font-semibold">GHG by year</div>
             <div class="badge">Sum</div>
@@ -114,7 +114,7 @@
           <div class="mt-1 text-xs opacity-70">Totals per year</div>
         </div>
 
-        <div class="rounded-box border p-4 bg-base-100">
+        <div class="rounded-box border border-base-300 p-4 bg-base-100 shadow-sm">
           <div class="flex items-center justify-between mb-2">
             <div class="font-semibold">Energy by year</div>
             <div class="badge">Sum</div>
@@ -135,7 +135,7 @@
           <div class="mt-1 text-xs opacity-70">Totals per year</div>
         </div>
 
-        <div class="rounded-box border p-4 bg-base-100">
+        <div class="rounded-box border border-base-300 p-4 bg-base-100 shadow-sm">
           <div class="flex items-center justify-between mb-2">
             <div class="font-semibold">Waste by year</div>
             <div class="badge">Sum</div>

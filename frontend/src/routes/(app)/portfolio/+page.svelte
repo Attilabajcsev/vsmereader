@@ -44,53 +44,42 @@
   $effect(() => { loadReports(); });
 </script>
 
-<div class="p-6 bg-base-200/40">
-  <div class="mx-auto max-w-6xl space-y-6">
-    <!-- Title -->
-    <h1 class="text-2xl font-semibold">CVR‑style ESG Portfolio</h1>
+<!-- Visual refresh only: keep existing behavior, remove hardcoded labels -->
+<div class="bg-base-200/60 border-b">
+  <div class="mx-auto max-w-6xl px-4 py-8">
+    <h1 class="text-xl font-semibold">Portfolio</h1>
 
-    <!-- Search block (company-focused) -->
-    <div class="rounded-box border bg-base-100 p-4">
-      <form class="flex items-center gap-3" onsubmit={(e) => { e.preventDefault(); loadReports(); }}>
-        <div class="flex-1">
-          <input class="input input-bordered w-full" placeholder="Search company name" bind:value={q} />
-        </div>
-        <button class="btn btn-neutral" type="submit">Search</button>
+    <div class="mt-4 rounded-box border border-base-300 bg-base-100 p-6 shadow-md">
+      <form class="mx-auto max-w-3xl flex items-stretch gap-2" onsubmit={(e) => { e.preventDefault(); loadReports(); }}>
+        <input class="input input-bordered input-lg w-full" placeholder="Search portfolio (company or year)" bind:value={q} />
+        <button class="btn btn-neutral btn-lg" type="submit">Search</button>
       </form>
     </div>
+  </div>
+</div>
 
-    <!-- Results header -->
+<div class="px-4 pt-8 pb-6 bg-base-200/40 min-h-screen">
+  <div class="mx-auto max-w-6xl">
     <div class="flex items-center justify-between">
-      <div class="text-lg font-medium">{reports.length} result{reports.length === 1 ? '' : 's'}</div>
+      <div class="text-lg font-medium">Found {reports.length} result{reports.length === 1 ? '' : 's'}</div>
     </div>
 
-    <!-- Results list (cards) -->
     {#if reports.length === 0}
-      <div class="text-sm opacity-75">No reports match your search.</div>
+      <div class="mt-4 text-sm opacity-75">No reports match your search.</div>
     {:else}
-      <div class="space-y-3">
+      <div class="mt-4 space-y-3">
         {#each reports as r}
-          <div class="rounded-box border bg-base-100 p-4">
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
+          <div class="rounded-box border border-base-300 bg-base-100 p-4 shadow-md hover:shadow-lg transition">
+            <div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
+              <div class="min-w-0 space-y-1">
                 <div class="text-base font-semibold truncate">{r.company?.name || '—'}</div>
                 <div class="text-xs opacity-70 truncate">Entity: {r.entity || '—'}</div>
+                <div class="text-xs opacity-70">Reporting period: {formatPeriod(r.reporting_period)}</div>
+                <div class="text-xs opacity-70">Created: {formatDate(r.created_at)}</div>
               </div>
-              <div class="flex items-center gap-2">
-                <span class="badge badge-ghost">Year {r.reporting_year || '—'}</span>
-                <span class="badge {r.status === 'validated' ? 'badge-success' : r.status === 'failed' ? 'badge-error' : ''}">{r.status}</span>
-              </div>
-            </div>
-            <div class="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
-              <div>
-                <div class="opacity-60 text-xs">Reporting period</div>
-                <div>{formatPeriod(r.reporting_period)}</div>
-              </div>
-              <div>
-                <div class="opacity-60 text-xs">Created</div>
-                <div>{formatDate(r.created_at)}</div>
-              </div>
-              <div class="flex items-center gap-2 justify-start sm:justify-end">
+              <div class="flex items-start md:items-center gap-2 md:justify-end">
+                <span class="badge badge-outline">Year {r.reporting_year || '—'}</span>
+                <span class={`badge ${r.status === 'validated' ? 'badge-success' : r.status === 'failed' ? 'badge-error' : ''}`}>{r.status}</span>
                 <button class="btn btn-ghost btn-sm" onclick={() => goto(`/reports/${r.id}`)}>Open</button>
                 <a class="btn btn-ghost btn-sm" href={`/api/reports/${r.id}/document/`} target="_blank">Inspect</a>
                 <button class="btn btn-error btn-sm" disabled={!!deleting[r.id]} onclick={() => onDelete(r.id)}>Delete</button>
