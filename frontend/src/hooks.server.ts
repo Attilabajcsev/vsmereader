@@ -6,7 +6,9 @@ import type { UserData } from '$lib/types';
 
 const VERIFY_URL = 'token/verify/';
 const userCache = new Map();
+const tokenCache = new Map();
 const TTL = 6 * 60 * 60 * 1000;
+const TTL_TOKEN_CACHE = 15 * 60 * 1000
 
 export async function handle({ event, resolve }) {
 
@@ -17,13 +19,22 @@ export async function handle({ event, resolve }) {
 
 	let accessToken = event.cookies.get('accessToken');
 	if (accessToken) {
-		try {
-			await api.post(VERIFY_URL, { token: accessToken });
-			event.locals.authed = true;
-		} catch (error) {
-            clearCookies(<RequestEvent>event);
-            console.log(`Failed to verify token ${error}`);
-		}
+		const cached = tokenCache.get(accessToken);
+		if (!cached || Date.now() - cached > TTL_TOKEN_CACHE) {
+			try {
+				await api.post(VERIFY_URL, { token: accessToken });
+				tokenCache.set(accessToken, Date.now());
+				event.locals.authed = true;
+			} catch (error) {
+				if (error.status === 429 && cached) {
+					console.log('Rate limited on token verification, using cached validation');
+					event.locals.authed = true;
+				} else {
+					clearCookies(event);
+					console.log(`Failed to verify token ${error}`);
+				}
+			}
+		} else event.locals.authed = true;
 	} else redirect(302, '/');
 
 
@@ -42,14 +53,15 @@ export async function handle({ event, resolve }) {
 // Supporting functions
 function clearCookies(event: RequestEvent): void {
 	const token = event.cookies.get('accessToken');
-	if (token) userCache.delete(token);
+	if (token) {
+		userCache.delete(token);
+		tokenCache.delete(token);
+	}
 	event.cookies.delete('accessToken', { path: '/' });
 }
 
 async function getUserData(accessToken: string): Promise<UserData> {
 	const cachedUser: { data: UserData; timestamp: number } = userCache.get(accessToken);
-
-	console.log('looking for user cache');
 	if (cachedUser && Date.now() - cachedUser.timestamp < TTL) return cachedUser.data;
 
 	console.log('no cache, fetching new data');
