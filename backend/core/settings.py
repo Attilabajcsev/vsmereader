@@ -52,8 +52,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60*1000*1000),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1000*1000)
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60*1000*1000)
 }
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
