@@ -9,8 +9,6 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     # Authentication
-    path("register/", views.create_user, name="register"),
-    path("oauth-google/", views.oauth_google, name="oauth-google"),
     path("login/", TokenObtainPairView.as_view(), name="get_token"),
     path("token/verify/", TokenVerifyView.as_view(), name="verify_token"),
     path("token/refresh/", TokenRefreshView.as_view(), name="refresh_token"),

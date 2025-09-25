@@ -5,64 +5,36 @@ import type { RequestEvent } from './routes/$types';
 import type { UserData } from '$lib/types';
 
 const VERIFY_URL = 'token/verify/';
-const REFRESH_URL = 'token/refresh/';
 const userCache = new Map();
 const TTL = 6 * 60 * 60 * 1000;
 
 export async function handle({ event, resolve }) {
-    let accessToken = event.cookies.get('accessToken');
-    const refreshToken = event.cookies.get('refreshToken');
-
-    // Do not verify on every request to avoid 429s; trust cookie presence
-    if (accessToken) {
-        event.locals.authed = true;
-    } else {
-        clearCookies(<RequestEvent>event);
-    }
 
 	// Protect routes that require authentication
-
-	const publicRoutes = ['/', '/login', '/register', '/login-oauth', '/oauth-google'];
+	const publicRoutes = ['/', '/login'];
 	const isPublicRoute = publicRoutes.includes(event.url.pathname);
+	if (isPublicRoute) return resolve(event);
 
-    if (!isPublicRoute) {
-        if (!event.locals.authed) throw redirect(302, '/login');
+	let accessToken = event.cookies.get('accessToken');
+	if (accessToken) {
+		try {
+			await api.post(VERIFY_URL, { token: accessToken });
+			event.locals.authed = true;
+		} catch (error) {
+            clearCookies(<RequestEvent>event);
+            console.log(`Failed to verify token ${error}`);
+		}
+	} else redirect(302, '/');
 
-        try {
-            if (!accessToken) throw error(401, 'Unauthorized');
-            event.locals.UserData = await getUserData(accessToken);
-        } catch (err) {
-            // If profile fails (likely expired access), try a single refresh
-            if (refreshToken) {
-                try {
-                    const refreshResponse = await api.post(REFRESH_URL, { refresh: refreshToken });
-                    if (refreshResponse?.access) {
-                        accessToken = refreshResponse.access;
-                        event.cookies.set('accessToken', accessToken, {
-                            httpOnly: true,
-                            path: '/',
-                            maxAge: 60 * 60,
-                            sameSite: 'lax',
-                            secure: event.url.protocol === 'https:'
-                        });
-                        event.locals.authed = true;
-                        // retry profile once
-                        event.locals.UserData = await getUserData(accessToken);
-                    } else {
-                        clearCookies(<RequestEvent>event);
-                        throw redirect(302, '/login');
-                    }
-                } catch (refreshError) {
-                    // On refresh errors (incl. 429), don't thrash: keep current page and require explicit login
-                    clearCookies(<RequestEvent>event);
-                    throw redirect(302, '/login');
-                }
-            } else {
-                clearCookies(<RequestEvent>event);
-                throw redirect(302, '/login');
-            }
-        }
-    }
+
+	if (!event.locals.authed) redirect(302, '/');
+
+	try {
+		event.locals.UserData = await getUserData(accessToken);
+	} catch (err) {
+		clearCookies(<RequestEvent>event);
+		error(500, `Unable to load user profile ${err}`);
+	}
 
 	return await resolve(event);
 }
@@ -72,7 +44,6 @@ function clearCookies(event: RequestEvent): void {
 	const token = event.cookies.get('accessToken');
 	if (token) userCache.delete(token);
 	event.cookies.delete('accessToken', { path: '/' });
-	event.cookies.delete('refreshToken', { path: '/' });
 }
 
 async function getUserData(accessToken: string): Promise<UserData> {
@@ -92,6 +63,6 @@ async function getUserData(accessToken: string): Promise<UserData> {
 		return data;
 	} catch (err) {
 		console.log(`Failed to fetch user ${err}`);
-        throw error(500, `Failed to fetch user ${err}`);
+		error(500, `Failed to fetch user ${err}`);
 	}
 }

@@ -21,25 +21,15 @@ export const actions: Actions = {
             return { message: 'Login failed. Check credentials.' };
         }
 		const accessToken = data.access;
-		const refreshToken = data.refresh;
-
         const isSecure = (() => { try { return new URL(request.url).protocol === 'https:'; } catch { return false; } })();
 
         cookies.set('accessToken', accessToken, {
 			httpOnly: true,
 			path: '/',
-			maxAge: 60 * 60,
+			maxAge: 60 * 60 * 1000 * 1000,
             sameSite: 'lax',
             secure: isSecure
-		}); //expires in 1h
-
-        cookies.set('refreshToken', refreshToken, {
-			httpOnly: true,
-			path: '/',
-			maxAge: 60 * 60 * 24 * 7,
-            sameSite: 'lax',
-            secure: isSecure
-		}); // expires in 1 week
+		}); //expires in 1.000.000h
 
         console.log('login successful. Redirecting..');
         throw redirect(303, '/portfolio');
