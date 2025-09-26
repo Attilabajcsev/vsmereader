@@ -174,12 +174,16 @@ def health(request: Request) -> Response:
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])
 def report_upload(request: Request) -> Response:
+    logger.info("Report upload request from user: %s", request.user)
+    
     serializer = ReportUploadSerializer(data=request.data, context={"request": request})
     if serializer.is_valid():
         report: Report = serializer.save()
         process_report_async(report.id)
         _maybe_schedule_cleanup()
         return Response({"id": report.id, "status": report.status}, status=201)
+    
+    logger.warning("Serializer validation failed: %s", serializer.errors)
     return Response(serializer.errors, status=400)
 
 

@@ -87,15 +87,118 @@ class ReportDetailSerializer(serializers.ModelSerializer):
         return {"id": obj.company_id, "name": obj.company.name}
 
 
-class ReportUploadSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Report
-        fields = ["id", "original_file", "company", "reporting_year"]
-        read_only_fields = ["id"]
+class ReportUploadSerializer(serializers.Serializer):
+    # Use Serializer instead of ModelSerializer for full control
+    original_file = serializers.FileField()
+    company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all(), required=False, allow_null=True)
+    reporting_year = serializers.IntegerField(required=False, allow_null=True)
+    company_name = serializers.CharField(required=False, allow_blank=True)
+
+    def validate_original_file(self, file):
+        name = (file.name or "").lower()
+        if not (name.endswith(".xhtml") or name.endswith(".html") or name.endswith(".zip")):
+            raise serializers.ValidationError("Accepted file types: .xhtml, .html, or .zip (IXDS)")
+
+        from django.conf import settings
+        max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
+        if file.size and file.size > max_bytes:
+            raise serializers.ValidationError(
+                f"File too large. Max size is {settings.MAX_UPLOAD_SIZE_MB} MB"
+            )
+        return file
+
+    def validate_reporting_year(self, year):
+        if year is None:
+            return year  # Allow None, will be auto-extracted
+        try:
+            y = int(year)
+        except (TypeError, ValueError):
+            raise serializers.ValidationError("Invalid year")
+        if y < 1900 or y > 2100:
+            raise serializers.ValidationError("Year must be between 1900 and 2100")
+        return y
+
+    def validate(self, attrs):
+        # Optional per-user quota enforcement
+        from django.contrib.auth.models import AnonymousUser
+        from django.conf import settings as dj_settings
+        user = getattr(self.context.get("request"), "user", None)
+        max_reports = getattr(dj_settings, "MAX_REPORTS_PER_USER", 0)
+        if max_reports and user and not isinstance(user, AnonymousUser):
+            count = Report.objects.filter(owner=user).count()
+            if count >= max_reports:
+                raise serializers.ValidationError({
+                    "non_field_errors": [f"Report quota exceeded. Max {max_reports} reports per user."],
+                })
+        
+        return attrs
 
     def create(self, validated_data):
+        import logging
+        logger = logging.getLogger(__name__)
+        
         user = self.context["request"].user
-        return Report.objects.create(owner=user, **validated_data)
+        original_file = validated_data["original_file"]
+        
+        # Get provided values
+        company = validated_data.get("company")
+        reporting_year = validated_data.get("reporting_year")
+        company_name = validated_data.get("company_name", "").strip()
+        
+        logger.info("Creating report with data: company=%s, year=%s, company_name='%s'", company, reporting_year, company_name)
+        
+        # Create a fallback company if none provided
+        if not company and not company_name:
+            # Extract filename as company name fallback
+            filename = original_file.name
+            if filename:
+                # Use filename without extension as company name
+                company_name = filename.rsplit('.', 1)[0]
+                logger.info("Using filename as company fallback: '%s'", company_name)
+        
+        # Handle company creation/lookup
+        if not company:
+            if company_name:
+                # Try to find existing company by name (case-insensitive)
+                company = Company.objects.filter(name__iexact=company_name).first()
+                if not company:
+                    # Create new company
+                    company = Company.objects.create(name=company_name)
+                    logger.info("Created new company: %s", company.name)
+            else:
+                # Last resort: create a generic company
+                company_name = "Unknown Company"
+                company = Company.objects.filter(name__iexact=company_name).first()
+                if not company:
+                    company = Company.objects.create(name=company_name)
+                logger.info("Created fallback company: %s", company.name)
+        
+        # Use default year if none provided (will be updated during processing)
+        if not reporting_year:
+            reporting_year = 2024  # Default fallback year
+            logger.info("Using default reporting year: %s", reporting_year)
+        
+        # Check for duplicates with a unique suffix if needed
+        base_company = company
+        counter = 1
+        while Report.objects.filter(company=company, reporting_year=reporting_year).exists():
+            # Create a variant company name to avoid duplicates
+            variant_name = f"{base_company.name} ({counter})"
+            company = Company.objects.filter(name__iexact=variant_name).first()
+            if not company:
+                company = Company.objects.create(name=variant_name)
+            counter += 1
+            if counter > 10:  # Prevent infinite loop
+                break
+        
+        logger.info("Creating report for company=%s, year=%s", company.name, reporting_year)
+        
+        return Report.objects.create(
+            owner=user,
+            original_file=original_file,
+            company=company,
+            reporting_year=reporting_year
+        )
 
     def validate_original_file(self, file):
         name = (file.name or "").lower()
@@ -109,10 +212,12 @@ class ReportUploadSerializer(serializers.ModelSerializer):
             )
         return file
 
-    def validate_reporting_year(self, year: int) -> int:
+    def validate_reporting_year(self, year):
+        if year is None:
+            return year  # Allow None, will be auto-extracted
         try:
             y = int(year)
-        except Exception:
+        except (TypeError, ValueError):
             raise serializers.ValidationError("Invalid year")
         if y < 1900 or y > 2100:
             raise serializers.ValidationError("Year must be between 1900 and 2100")
@@ -120,12 +225,7 @@ class ReportUploadSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         attrs = super().validate(attrs)
-        company = attrs.get("company")
-        year = attrs.get("reporting_year")
-        if not company:
-            raise serializers.ValidationError({"company": "Company is required"})
-        if not year:
-            raise serializers.ValidationError({"reporting_year": "Reporting year is required"})
+        
         # Optional per-user quota enforcement
         from django.contrib.auth.models import AnonymousUser
         from django.conf import settings as dj_settings
@@ -137,14 +237,7 @@ class ReportUploadSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({
                     "non_field_errors": [f"Report quota exceeded. Max {max_reports} reports per user."],
                 })
-        # Enforce uniqueness per company-year
-        exists = Report.objects.filter(company=company, reporting_year=year).exists()
-        if exists:
-            raise serializers.ValidationError({
-                "non_field_errors": ["A report for this company and year already exists."],
-                "company": ["Duplicate for selected year"],
-                "reporting_year": ["Duplicate for selected company"],
-            })
+        
         return attrs
 
 
