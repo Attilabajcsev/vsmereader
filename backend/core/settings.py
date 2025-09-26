@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 import threading
+from datetime import timedelta
 
 load_dotenv()
 
@@ -48,6 +49,10 @@ REST_FRAMEWORK = {
         "user": os.getenv("THROTTLE_USER", "100/min"),
         "anon": os.getenv("THROTTLE_ANON", "20/min"),
     },
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60*1000*1000)
 }
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
