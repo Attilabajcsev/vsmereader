@@ -13,18 +13,18 @@
 			<div class="flex items-stretch">
 				<!-- Left section: brand -->
 				<div class="px-4 py-6 flex items-center">
-					<a class="text-xl font-semibold select-none">IXBRL VSME Reader</a>
+					<a class="text-xl font-semibold select-none">IXBRL VSME Læser</a>
 				</div>
 				<!-- Divider -->
 				<div class="w-px bg-base-300/80 my-2"></div>
 				<!-- Middle section: nav links -->
 				<div class="flex items-center px-1">
 					{#if data.authed}
-						<a class="px-4 py-6 hover:bg-base-200/60" href="/submit">Submit report</a>
+						<a class="px-4 py-6 hover:bg-base-200/60" href="/submit">Indsend rapport</a>
 						<div class="w-px bg-base-300/80 my-2"></div>
-						<a class="px-4 py-6 hover:bg-base-200/60" href="/portfolio">Portfolio</a>
+						<a class="px-4 py-6 hover:bg-base-200/60" href="/portfolio">Portefølje</a>
 						<div class="w-px bg-base-300/80 my-2"></div>
-						<a class="px-4 py-6 hover:bg-base-200/60" href="/insights">Insights</a>
+						<a class="px-4 py-6 hover:bg-base-200/60" href="/insights">Indsigter</a>
 					{/if}
 				</div>
 				<!-- Spacer -->
@@ -32,9 +32,9 @@
 				<!-- Right section: login area with blue background -->
 				<div class="flex items-stretch">
 					{#if data.authed}
-						<a class="px-6 py-6 bg-primary text-primary-content hover:opacity-90" href="/logout" data-sveltekit-preload-data="off">Logout</a>
+						<a class="px-6 py-6 bg-primary text-primary-content hover:opacity-90" href="/logout" data-sveltekit-preload-data="off">Log ud</a>
 					{:else}
-						<a class="px-6 py-6 bg-primary text-primary-content hover:opacity-90" href="/login">Login</a>
+						<a class="px-6 py-6 bg-primary text-primary-content hover:opacity-90" href="/login">Log ind</a>
 					{/if}
 				</div>
 			</div>
@@ -47,7 +47,7 @@
 
 	<footer class="footer sm:footer-horizontal footer-center bg-base-300/70 text-base-content p-4">
 		<aside>
-			<p>Copyright © {new Date().getFullYear()} - IXBRL VSME Reader</p>
+			<p>Copyright © {new Date().getFullYear()} - IXBRL VSME Læser</p>
 		</aside>
 	</footer>
 </div>

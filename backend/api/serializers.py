@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Report, Company, VsmeRegister
 from django.conf import settings
+from django.db import models
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -38,6 +39,7 @@ class ReportListSerializer(serializers.ModelSerializer):
         model = Report
         fields = [
             "id",
+            "user_report_number",
             "company",
             "reporting_year",
             "entity",
@@ -61,6 +63,7 @@ class ReportDetailSerializer(serializers.ModelSerializer):
         model = Report
         fields = [
             "id",
+            "user_report_number",
             "company",
             "reporting_year",
             "entity",
@@ -193,11 +196,18 @@ class ReportUploadSerializer(serializers.Serializer):
         
         logger.info("Creating report for company=%s, year=%s", company.name, reporting_year)
         
+        # Get the next user report number
+        max_user_report_num = Report.objects.filter(owner=user).aggregate(
+            max_num=models.Max('user_report_number')
+        )['max_num']
+        next_user_report_number = (max_user_report_num or 0) + 1
+        
         return Report.objects.create(
             owner=user,
             original_file=original_file,
             company=company,
-            reporting_year=reporting_year
+            reporting_year=reporting_year,
+            user_report_number=next_user_report_number
         )
 
     def validate_original_file(self, file):

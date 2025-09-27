@@ -32,6 +32,9 @@ from .register import upsert_vsme_register, recompute_vsme_register, rebuild_all
 import mimetypes
 import zipfile as _zipfile
 from urllib.parse import unquote
+from django.db.models import Count, Sum, Max, Avg
+from collections import Counter
+from decimal import Decimal
 
 logger = logging.getLogger(__name__)
 
@@ -570,6 +573,35 @@ def register_rebuild(request: Request) -> Response:
     return Response({"ok": True, **result})
 
 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def register_cleanup_user(request: Request) -> Response:
+    """Clean up VsmeRegister entries for the current user's data only."""
+    user = request.user
+    try:
+        # Get all company-year pairs from user's validated reports
+        user_company_years = set(
+            Report.objects.filter(owner=user, status=Report.Status.VALIDATED)
+            .values_list('company_id', 'reporting_year')
+        )
+        
+        cleaned_up = 0
+        for company_id, year in user_company_years:
+            recompute_vsme_register(company_id, year)
+            cleaned_up += 1
+            
+        return Response({
+            "ok": True, 
+            "message": f"Cleaned up {cleaned_up} VsmeRegister entries for user {user.username}",
+            "cleaned_pairs": cleaned_up
+        })
+    except Exception as e:
+        return Response({
+            "ok": False, 
+            "error": str(e)
+        }, status=500)
+
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def register_export_csv(request: Request) -> Response:
@@ -640,3 +672,159 @@ def register_export_csv(request: Request) -> Response:
     response = HttpResponse(content, content_type="text/csv; charset=utf-8")
     response["Content-Disposition"] = "attachment; filename=vsme_register.csv"
     return response
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def insights_aggregated(request: Request) -> Response:
+    """
+    Insights v1.5: Aggregated portfolio view with status tiles, KPI trends, and quality snapshot.
+    Only shows data from reports owned by the current user.
+    """
+    user = request.user
+    
+    # Row 1: Status tiles - filter by user ownership
+    user_reports = Report.objects.filter(owner=user, status=Report.Status.VALIDATED)
+    companies_count = user_reports.values('company').distinct().count()
+    validated_reports_count = user_reports.count()
+    
+    # Latest submission (most recent updated report for this user)
+    latest_report = user_reports.order_by('-updated_at').first()
+    latest_submission = latest_report.updated_at.isoformat() if latest_report else None
+    
+    # Get company-year pairs from user's reports
+    user_company_years = set(user_reports.values_list('company_id', 'reporting_year'))
+    
+    # Early return if user has no validated reports
+    if not user_company_years:
+        return Response({
+            'status_tiles': {
+                'companies_count': 0,
+                'validated_reports_count': 0,
+                'latest_submission': None,
+                'portfolio_completeness': 0.0
+            },
+            'kpi_trends': {
+                'ghg_by_year': [],
+                'energy_by_year': [],
+                'waste_by_year': [],
+                'ghg_per_employee': []
+            },
+            'quality_snapshot': {
+                'units_analysis': {},
+                'portfolio_completeness': 0.0,
+                'distribution_data': None
+            }
+        })
+    
+    # Get VsmeRegister entries that correspond to user's validated reports
+    register_qs = VsmeRegister.objects.select_related('company').filter(
+        company_id__in=[cy[0] for cy in user_company_years],
+        year__in=[cy[1] for cy in user_company_years]
+    ).distinct()
+    
+    # Portfolio completeness (using completeness_score from user's VsmeRegister entries)
+    avg_completeness = register_qs.aggregate(avg_comp=Avg('completeness_score'))['avg_comp']
+    portfolio_completeness = round(float(avg_completeness or 0), 1)
+    
+    # Row 2: KPI trend charts (aggregates by year) - only user's data
+    
+    # Group by year and sum KPIs
+    yearly_data = {}
+    for row in register_qs:
+        year = row.year
+        if year not in yearly_data:
+            yearly_data[year] = {
+                'ghg_total': Decimal('0'),
+                'energy': Decimal('0'), 
+                'waste': Decimal('0'),
+                'employees': Decimal('0'),
+                'count': 0
+            }
+        
+        yearly_data[year]['ghg_total'] += row.ghg_total_value or Decimal('0')
+        yearly_data[year]['energy'] += row.energy_consumption_value or Decimal('0')
+        yearly_data[year]['waste'] += row.waste_generated_value or Decimal('0')
+        yearly_data[year]['employees'] += row.employees_value or Decimal('0')
+        yearly_data[year]['count'] += 1
+    
+    # Convert to sorted lists for charts
+    sorted_years = sorted(yearly_data.keys())
+    ghg_by_year = [{'year': year, 'value': float(yearly_data[year]['ghg_total'])} for year in sorted_years]
+    energy_by_year = [{'year': year, 'value': float(yearly_data[year]['energy'])} for year in sorted_years]
+    waste_by_year = [{'year': year, 'value': float(yearly_data[year]['waste'])} for year in sorted_years]
+    
+    # Optional intensities (only if denominator > 0)
+    ghg_per_employee = []
+    for year in sorted_years:
+        employees = yearly_data[year]['employees']
+        if employees > 0:
+            intensity = float(yearly_data[year]['ghg_total'] / employees)
+            ghg_per_employee.append({'year': year, 'value': intensity})
+    
+    # Row 3: Quality snapshot - Units consistency
+    units_analysis = {}
+    kpi_fields = [
+        ('ghg_total', 'ghg_total_unit', 'tCO₂e'),
+        ('energy', 'energy_consumption_unit', 'MWh'),
+        ('waste', 'waste_generated_unit', 't'),
+        ('water', 'water_withdrawal_unit', 'm³')
+    ]
+    
+    for kpi_name, unit_field, target_unit in kpi_fields:
+        units = []
+        for row in register_qs:
+            unit = getattr(row, unit_field, None)
+            if unit:
+                units.append(unit)
+        
+        if units:
+            unit_counts = Counter(units)
+            most_common_unit, most_common_count = unit_counts.most_common(1)[0]
+            unit_consistency = round((most_common_count / len(units)) * 100, 1)
+            status = 'OK' if unit_consistency >= 90 else 'Mixed'
+        else:
+            most_common_unit = 'N/A'
+            unit_consistency = 0
+            status = 'No data'
+        
+        units_analysis[kpi_name] = {
+            'target_unit': target_unit,
+            'most_common_unit': most_common_unit,
+            'consistency_pct': unit_consistency,
+            'status': status
+        }
+    
+    # Distribution chart data (GHG for latest year with ≥5 companies)
+    latest_year_with_data = max(sorted_years) if sorted_years else None
+    distribution_data = None
+    
+    if latest_year_with_data:
+        latest_year_rows = register_qs.filter(year=latest_year_with_data, ghg_total_value__isnull=False)
+        if latest_year_rows.count() >= 5:
+            ghg_values = [float(row.ghg_total_value) for row in latest_year_rows if row.ghg_total_value]
+            distribution_data = {
+                'year': latest_year_with_data,
+                'values': ghg_values,
+                'count': len(ghg_values)
+            }
+    
+    return Response({
+        'status_tiles': {
+            'companies_count': companies_count,
+            'validated_reports_count': validated_reports_count,
+            'latest_submission': latest_submission,
+            'portfolio_completeness': portfolio_completeness
+        },
+        'kpi_trends': {
+            'ghg_by_year': ghg_by_year,
+            'energy_by_year': energy_by_year,
+            'waste_by_year': waste_by_year,
+            'ghg_per_employee': ghg_per_employee if len(ghg_per_employee) >= 2 else []
+        },
+        'quality_snapshot': {
+            'units_analysis': units_analysis,
+            'portfolio_completeness': portfolio_completeness,
+            'distribution_data': distribution_data
+        }
+    })
