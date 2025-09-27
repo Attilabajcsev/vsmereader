@@ -110,7 +110,7 @@ def extract_facts(oim_json: Dict[str, Any]) -> Iterable[Dict[str, Any]]:
 
 
 def extract_reporting_year_from_period(reporting_period: str) -> int | None:
-    """Extract a reporting year from a period string like '2024-01-01 to 2024-12-31' or '2024-12-31'."""
+    """Extract a reporting year from a period string like '2024-01-01 to 2024-12-31' or '2024-12-31' or '2025-01-01T00:00:00/2026-01-01T00:00:00'."""
     if not reporting_period:
         return None
     
@@ -118,8 +118,14 @@ def extract_reporting_year_from_period(reporting_period: str) -> int | None:
     # Look for 4-digit years in the period string
     years = re.findall(r'\b(20\d{2}|19\d{2})\b', reporting_period)
     if years:
-        # Return the last/most recent year found
-        return int(years[-1])
+        # For XBRL period ranges like "2025-01-01T00:00:00/2026-01-01T00:00:00"
+        # the reporting year is the start year (2025), not the end year (2026)
+        if len(years) >= 2 and '/' in reporting_period:
+            # This is likely a range period - use the first year
+            return int(years[0])
+        else:
+            # Single date or other format - return the last/most recent year found
+            return int(years[-1])
     return None
 
 

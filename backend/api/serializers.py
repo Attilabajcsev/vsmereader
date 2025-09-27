@@ -178,7 +178,8 @@ class ReportUploadSerializer(serializers.Serializer):
         
         # Use default year if none provided (will be updated during processing)
         if not reporting_year:
-            reporting_year = 2024  # Default fallback year
+            from datetime import datetime
+            reporting_year = datetime.now().year  # Use current year as default
             logger.info("Using default reporting year: %s", reporting_year)
         
         # Check for duplicates with a unique suffix if needed
