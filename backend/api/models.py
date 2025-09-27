@@ -24,6 +24,7 @@ class Report(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reports")
     company = models.ForeignKey(Company, on_delete=models.PROTECT, related_name="reports")
     reporting_year = models.PositiveIntegerField()
+    user_report_number = models.PositiveIntegerField(default=1, help_text="Sequential report number per user")
     original_file = models.FileField(upload_to="reports/original/")
     oim_json_file = models.FileField(upload_to="reports/oim/", null=True, blank=True)
 
@@ -50,7 +51,8 @@ class Report(models.Model):
         comp = getattr(self, "company", None)
         cy = f", {self.reporting_year}" if getattr(self, "reporting_year", None) else ""
         cname = f" — {comp.name}" if comp else ""
-        return f"Report #{self.id}{cname}{cy} — {entity} ({period})"
+        report_num = getattr(self, "user_report_number", self.id)
+        return f"Report #{report_num}{cname}{cy} — {entity} ({period})"
 
 
 class Fact(models.Model):

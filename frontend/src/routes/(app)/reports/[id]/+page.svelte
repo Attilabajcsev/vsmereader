@@ -112,30 +112,32 @@
   <div class="mx-auto max-w-5xl space-y-6">
     <div class="flex items-start justify-between">
       <div>
-        <button class="btn btn-ghost" onclick={() => goto('/portfolio')}>← Back</button>
-        <h1 class="text-2xl font-semibold mt-2">Report #{report?.id ?? ''}</h1>
+        <button class="btn btn-ghost" onclick={() => goto('/portfolio')}>← Tilbage</button>
+        <h1 class="text-2xl font-semibold mt-2">Rapport #{report?.user_report_number ?? report?.id ?? ''}</h1>
         <div class="text-sm opacity-80 mt-1">
-          <span>Company: {report?.company?.name || '—'}</span>
+          <span>Virksomhed: {report?.company?.name || '—'}</span>
           <span class="mx-2">•</span>
-          <span>Year: {report?.reporting_year || '—'}</span>
+          <span>År: {report?.reporting_year || '—'}</span>
         </div>
       </div>
       <div class="flex gap-2">
-        <button class="btn btn-error btn-sm" disabled={deleteBusy} onclick={onDelete}>Delete</button>
+        <button class="btn btn-error btn-sm" disabled={deleteBusy} onclick={onDelete}>Slet</button>
       </div>
     </div>
 
   {#if !report}
-    <div>Loading…</div>
+    <div>Indlæser…</div>
   {:else}
     <div class="grid gap-4 md:grid-cols-2">
       <div class="rounded-box border border-base-300 bg-base-100 p-4 shadow-sm">
         <div class="text-sm opacity-80 space-y-1">
-          <div>Entity: {report.entity || '—'}</div>
-          <div>Reporting Period: {report.reporting_period || '—'}</div>
-          <div>Taxonomy Version: {report.taxonomy_version || '—'}</div>
-          <div>Status: <span class="badge {report.status === 'validated' ? 'badge-success' : report.status === 'failed' ? 'badge-error' : 'badge-ghost'}">{report.status}</span></div>
-          <div>Created: {new Date(report.created_at).toLocaleString()}</div>
+          <div>Enhed: {report.entity || '—'}</div>
+          <div>Rapporteringsperiode: {report.reporting_period || '—'}</div>
+          <div>Taksonomi version: {report.taxonomy_version || '—'}</div>
+          <div>Status: <span class="badge {report.status === 'validated' ? 'badge-success' : report.status === 'failed' ? 'badge-error' : 'badge-ghost'}">
+            {report.status === 'validated' ? 'valideret' : report.status === 'failed' ? 'fejlet' : report.status === 'processing' ? 'behandler' : report.status}
+          </span></div>
+          <div>Oprettet: {new Date(report.created_at).toLocaleString()}</div>
         </div>
 
         <div class="mt-4 flex flex-wrap gap-2">
@@ -143,17 +145,17 @@
             <a class="btn btn-sm" href={`../../api/reports/${report.id}/download/original/`}>Download original iXBRL</a>
           {/if}
           {#if report.oim_json_file_url}
-            <a class="btn btn-sm" href={`../../api/reports/${report.id}/download/oim-json/`}>Download extracted JSON</a>
+            <a class="btn btn-sm" href={`../../api/reports/${report.id}/download/oim-json/`}>Download udtrukket JSON</a>
           {/if}
-          <button class="btn btn-sm" onclick={inspectInline}>Inspect report</button>
+          <button class="btn btn-sm" onclick={inspectInline}>Inspicer rapport</button>
         </div>
       </div>
 
       <div class="rounded-box border border-base-300 bg-base-100 p-4 shadow-sm">
         {#if report.status === 'validated'}
-          <h2 class="text-lg font-semibold mb-2">vSME ESG Summary</h2>
+          <h2 class="text-lg font-semibold mb-2">vSME ESG Sammendrag</h2>
           {#if summary}
-            <div class="text-sm opacity-80 mb-2">Entity: {summary.entity || '—'} • Period: {summary.reporting_period || '—'} • Facts: {summary.fact_count}</div>
+            <div class="text-sm opacity-80 mb-2">Enhed: {summary.entity || '—'} • Periode: {summary.reporting_period || '—'} • Fakta: {summary.fact_count}</div>
             <ul class="space-y-1">
               {#each summary.items as item}
                 <li class="flex items-center justify-between">
