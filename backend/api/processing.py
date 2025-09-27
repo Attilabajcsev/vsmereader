@@ -138,8 +138,8 @@ def _is_oim_json_file(json_path: str) -> bool:
 
 def _wrap_in_report_package(html_path: str, work_base_dir: str) -> Tuple[str, str | None]:
     """
-    Create a minimal Inline XBRL Document Set (IXDS) ZIP around a single HTML/XHTML file:
-    - META-INF/reportPackage.json (2023 spec identifier)
+    Create a complete Inline XBRL Document Set (IXDS) ZIP around a single HTML/XHTML file:
+    - META-INF/reportPackage.json (with comprehensive metadata)
     - reports/<basename>.html|xhtml
     Returns (zip_path, temp_dir) or (html_path, None) on failure.
     """
@@ -155,18 +155,40 @@ def _wrap_in_report_package(html_path: str, work_base_dir: str) -> Tuple[str, st
         target_doc = os.path.join(reports_dir, base_name)
         shutil.copy2(html_path, target_doc)
 
-        # Minimal reportPackage.json
+        # Enhanced reportPackage.json with metadata that helps Arelle process the package correctly
         meta_json_path = os.path.join(meta_dir, "reportPackage.json")
+        report_package_metadata = {
+            "documentInfo": {
+                "documentType": "https://xbrl.org/report-package/2023",
+                "namespaces": {
+                    "xbrl": "https://xbrl.org/2021",
+                    "xbrli": "http://www.xbrl.org/2003/instance",
+                    "vsme": "https://xbrl.efrag.org/taxonomy/vsme/2024-12-17/vsme"
+                },
+                "taxonomy": [
+                    "https://xbrl.efrag.org/taxonomy/vsme/2024-12-17/vsme-all.xsd"
+                ]
+            },
+            "reports": [
+                {
+                    "file": f"reports/{base_name}",
+                    "role": "https://xbrl.org/2021/role/primary"
+                }
+            ]
+        }
+        
         with open(meta_json_path, "w", encoding="utf-8") as f:
-            f.write('{"documentInfo": {"documentType": "https://xbrl.org/report-package/2023"}}')
+            import json
+            json.dump(report_package_metadata, f, indent=2)
 
-        # Build ZIP archive
+        # Build ZIP archive with no compression to avoid encoding issues
         zip_path = os.path.join(temp_dir, "package.zip")
-        with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_STORED) as zf:
             # Ensure paths inside ZIP use forward slashes per spec convention
             zf.write(meta_json_path, arcname="META-INF/reportPackage.json")
             zf.write(target_doc, arcname=f"reports/{base_name}")
 
+        logger.info("Created enhanced IXDS package: %s (size: %d bytes)", zip_path, os.path.getsize(zip_path))
         return zip_path, temp_dir
     except Exception:
         logger.exception("Failed to wrap HTML into IXDS package; falling back to original file")
@@ -174,31 +196,17 @@ def _wrap_in_report_package(html_path: str, work_base_dir: str) -> Tuple[str, st
 
 
 def _resolve_effective_input_path(original_path: str, work_base_dir: str) -> tuple[str, str | None]:
-    """Return an input file path Arelle can open. If .html, auto-wrap into IXDS. If .zip IXDS, unzip and pick first .xhtml/.html."""
+    """Return an input file path Arelle can open. If .html, auto-wrap into enhanced IXDS. If .zip IXDS, pass the ZIP directly."""
     lower = original_path.lower()
     if lower.endswith(".html"):
-        # Auto-wrap raw HTML into a minimal IXDS ZIP so Arelle loads it reliably
+        # Auto-wrap raw HTML into an enhanced IXDS ZIP so Arelle loads it with full context
         return _wrap_in_report_package(original_path, work_base_dir)
     if lower.endswith(".xhtml"):
         return original_path, None
     if lower.endswith(".zip"):
-        try:
-            temp_dir = tempfile.mkdtemp(prefix="ixds_", dir=work_base_dir)
-            with zipfile.ZipFile(original_path, 'r') as zf:
-                zf.extractall(temp_dir)
-            # find first .xhtml within extracted
-            chosen: str | None = None
-            for root, _dirs, files in os.walk(temp_dir):
-                for name in files:
-                    if name.lower().endswith((".xhtml", ".html")):
-                        chosen = os.path.join(root, name)
-                        break
-                if chosen:
-                    break
-            return (chosen or original_path), temp_dir
-        except Exception:
-            # fallback to original_path
-            return original_path, None
+        # For ZIP files, pass the ZIP directly to Arelle with inlineXbrlDocumentSet plugin
+        # This preserves the full IXDS structure including META-INF and other metadata
+        return original_path, None
     return original_path, None
 
 
@@ -303,13 +311,39 @@ def _process_report_sync(report_id: int) -> None:
             with open(generated_path, "r", encoding="utf-8") as jf:
                 oim_json = _json.load(jf)
             entity, period = extract_metadata(oim_json)
-            if entity or period:
+            
+            # Extract reporting year from period if available
+            reporting_year = None
+            if period:
+                from .oim import extract_reporting_year_from_period
+                reporting_year = extract_reporting_year_from_period(period)
+            
+            if entity or period or reporting_year:
                 with transaction.atomic():
+                    update_fields = ["updated_at"]
                     if entity:
                         report.entity = entity
+                        update_fields.append("entity")
                     if period:
                         report.reporting_period = period
-                    report.save(update_fields=["entity", "reporting_period", "updated_at"])
+                        update_fields.append("reporting_period")
+                    if reporting_year:
+                        # Check if this would create a duplicate (company, reporting_year) constraint violation
+                        existing_report = Report.objects.filter(
+                            company=report.company, 
+                            reporting_year=reporting_year
+                        ).exclude(id=report.id).first()
+                        
+                        if not existing_report:
+                            report.reporting_year = reporting_year
+                            update_fields.append("reporting_year")
+                            logger.info("Updated reporting year from %s to %s for report id=%s", 
+                                      report.reporting_year, reporting_year, report_id)
+                        else:
+                            logger.warning("Cannot update reporting year to %s for report id=%s - would violate uniqueness constraint with report id=%s", 
+                                         reporting_year, report_id, existing_report.id)
+                    
+                    report.save(update_fields=update_fields)
             # Save facts
             fact_rows = list(extract_facts(oim_json))
             to_create: list[Fact] = []
