@@ -98,6 +98,9 @@ def _compute_completeness(values: Dict[str, Any]) -> int:
 
 def upsert_vsme_register(report: Report) -> VsmeRegister:
     """Upsert VsmeRegister row for the report's company-year based on its facts."""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     # Ensure we only process validated reports
     if report.status != Report.Status.VALIDATED:
         return None  # type: ignore
@@ -106,6 +109,11 @@ def upsert_vsme_register(report: Report) -> VsmeRegister:
     # Always refresh entity_identifier from report
     entity_identifier = report.entity or ""
     completeness = _compute_completeness(values)
+    
+    # Log what we extracted for debugging
+    fact_count = report.facts.count()
+    logger.info("VsmeRegister update for report %s: extracted %d facts, %d metric values, completeness=%d%%", 
+                report.id, fact_count, len(values), completeness)
 
     with transaction.atomic():
         row, created = VsmeRegister.objects.select_for_update().get_or_create(
@@ -119,19 +127,37 @@ def upsert_vsme_register(report: Report) -> VsmeRegister:
             }
         )
         if not created:
-            # Update in place: merge new values, keep units if provided, update completeness and pointers
+            # Clear all metric fields first to avoid contamination from previous reports
+            metric_fields = [
+                "employees_value", "employees_unit",
+                "ghg_total_value", "ghg_total_unit",
+                "ghg_scope1_value", "ghg_scope1_unit",
+                "ghg_scope2_value", "ghg_scope2_unit",
+                "energy_consumption_value", "energy_consumption_unit",
+                "renewable_energy_share_value", "renewable_energy_share_unit",
+                "water_withdrawal_value", "water_withdrawal_unit",
+                "water_discharge_value", "water_discharge_unit",
+                "waste_generated_value", "waste_generated_unit",
+                "hazardous_waste_value", "hazardous_waste_unit",
+                "non_hazardous_waste_value", "non_hazardous_waste_unit",
+            ]
+            
+            # Clear all metric fields to prevent contamination
+            for field in metric_fields:
+                setattr(row, field, None)
+            
+            # Now set new values from current report
             for field, val in values.items():
                 setattr(row, field, val)
+            
             row.entity_identifier = entity_identifier or row.entity_identifier
             row.completeness_score = completeness
             row.last_report = report
-            # Merge sources (overwrite codes we matched this run)
-            merged_sources = dict(row.source_concepts or {})
-            merged_sources.update(sources)
-            row.source_concepts = merged_sources
+            # Replace sources completely (don't merge with old data)
+            row.source_concepts = sources
             row.save()
         else:
-            # For a new row, also set metric fields
+            # For a new row, set metric fields
             for field, val in values.items():
                 setattr(row, field, val)
             row.save()
